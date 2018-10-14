@@ -1,0 +1,39 @@
+from enaml.layout.api import align, hbox, vbox, spacer, horizontal
+from enaml.widgets.api import Window, Container, Label, SpinBox
+from UI.widgets.api import MultiselectWidget, ImageWidget
+from image_clusters_model import ImageClustersModel
+
+enamldef Main(Window): m:
+    attr image
+    attr model = ImageClustersModel(image=m.image)
+
+    Container:
+        enabled << not model.busy
+        padding = 3
+        constraints = [
+            # Arrange the Html Frame above the horizontal row of buttons
+            vbox(
+                hbox(n_clusters_widget, spacer),
+                image_widget,
+                clustered_image_widget
+            ),
+
+            # Weakly align the centers of the Html frame and the center
+            # button. Declaring this constraint as 'weak' is what allows
+            # the button to ignore the constraint as he window is resized
+            # too small to allow it to be centered.
+            # align('h_center', image_widget, change_mode_button) | 'weak',
+            #align('h_center', image_widget, add_button),
+
+            # Set a sensible minimum height for the frame
+            image_widget.height == clustered_image_widget.height
+        ]
+        SpinBox: n_clusters_widget:
+            value := model.n_clusters
+            minimum = 1
+            maximum = 32
+        ImageWidget: image_widget:
+            image := model.image
+        ImageWidget: clustered_image_widget:
+            image := model.clustered_image
+

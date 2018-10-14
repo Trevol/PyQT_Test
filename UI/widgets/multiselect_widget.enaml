@@ -1,0 +1,25 @@
+from enaml.widgets.api import CheckBox, Container
+from enaml.core.api import Looper
+
+enamldef MultiselectWidget(Container): s:
+    attr options
+    attr selectedOptions = []
+    attr optionsText
+
+    func toggleOptionSelection(option, toggled):
+        if toggled:
+            self.selectedOptions.append(option)
+        else:
+            self.selectedOptions.remove(option)
+
+    func isSelected(option):
+        return option in self.selectedOptions
+    Looper:
+        iterable << options
+        CheckBox:
+            text << (optionsText or _str)(loop_item)
+            checked << isSelected(loop_item)
+            toggled     :: toggleOptionSelection(loop_item, change['value'])
+
+def _str(option):
+        return str(option)

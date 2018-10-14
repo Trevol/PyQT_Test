@@ -1,0 +1,42 @@
+from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, ScrollArea, CheckBox, Splitter, SplitItem, Form, Slider
+from enaml.core.api import Looper
+from enaml.layout.api import hbox, vbox, align, spacer
+from atom.api import ContainerList
+from UI.widgets.api import MultiselectWidget, ImageWidget
+from contours_collector_model import ContoursCollectorModel
+
+enamldef Container_(Container):
+    padding = 0
+
+class Main_(Window):
+    selectedItems = ContainerList(default = [1, 2])
+
+enamldef Main(Main_): m:
+    title = 'Contours'
+
+    attr im_contours
+    attr model = ContoursCollectorModel('../../images/contacts/3contacts.jpg')
+
+    initialized :: showContours()
+
+    func showContours():
+        self.im_contours = model.collectContours()
+
+    Container_:
+        Form:
+            Slider:
+                value := model.val
+            PushButton:
+                text = 'Get Contours'
+                clicked :: showContours()
+        Splitter:
+            SplitItem:
+                Container_:
+                    ImageWidget:
+                        image << im_contours
+            SplitItem:
+                Container_:
+                    ScrollArea: s:
+                        MultiselectWidget:
+                            options << [1, 2, 3]
+                            selectedOptions << m.selectedItems

@@ -1,0 +1,54 @@
+from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, ScrollArea, CheckBox
+from enaml.core.api import Looper
+from enaml.layout.api import hbox, vbox, align, spacer
+from main_model import MainModel
+import time
+from atom.api import ContainerList
+from UI.widgets.multiselect_widget import MultiselectWidget
+
+enamldef Main(Window): m:
+    title = 'Multiselect'
+    attr model = MainModel()
+
+    Container:
+        constraints = [
+            hbox(cont1, cont2),
+            align('width', cont1, cont2)
+        ]
+        VGroup: cont1:
+            trailing_spacer = spacer(0)
+            Container:
+                padding = 0
+                constraints = [
+                    vbox(add_item_b, change_item_b, scroller)
+                ]
+                PushButton: add_item_b:
+                    text = 'Add Item'
+                    clicked :: m.model.add_item()
+                PushButton: change_item_b:
+                    text = 'Change Items[0]'
+                    clicked ::
+                        if len(m.model.items):
+                            m.model.items[0].name = 'Name {t}'.format(t = time.time())
+                ScrollArea: scroller:
+                    MultiselectWidget:
+                        options << list(m.model.items)
+                        selectedOptions << m.model.selectedItems
+                        optionsText << lambda item: text_text_2(item, item.name)
+
+
+        VGroup: cont2:
+            trailing_spacer = spacer(0)
+            Container:
+                padding = 0
+#                MultiselectWidget:
+#                    optionsText = fff
+                ScrollArea: scroller2:
+                    Container:
+                        Looper:
+                            iterable << list(model.selectedItems)
+                            Label:
+                                text << text_text_2(loop_item, loop_item.id, loop_item.name)
+
+def text_text_2(item, *deps):
+    return '{id} - {name}'.format(id = item.id, name = item.name)
