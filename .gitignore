@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+.gitignore
+.idea/
+UI/contours_collector/__pycache__/
+UI/kmean_color/__pycache__/
+UI/multiselect/__pycache__/
+UI/widgets/__pycache__/
+__pycache__/
+kmeans/__pycache__/
