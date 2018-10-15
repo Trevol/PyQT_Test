@@ -11,7 +11,7 @@ pg.setConfigOptions(imageAxisOrder='row-major')
 
 class PgImageWidget(pg.GraphicsView):
     def __init__(self, parent, widget):
-        super(PgImageWidget, self).__init__(parent, background=(0, 100, 0))
+        super(PgImageWidget, self).__init__(parent, background=(0, 0, 0, 0))  # transparent background
         self.widget = widget
 
     def mouseReleaseEvent(self, ev):
@@ -20,11 +20,11 @@ class PgImageWidget(pg.GraphicsView):
     def wheelEvent(self, ev):
         # PyQt5.QtGui.QWheelEvent
         super(PgImageWidget, self).wheelEvent(ev)
-        print('wheelEvent', ev, ev.x(), ev.y(), ev.pos(), ev.globalPos(), ev.angleDelta(), ev.phase())
+        # print('wheelEvent', ev, ev.x(), ev.y(), ev.pos(), ev.globalPos(), ev.angleDelta(), ev.phase())
 
     def mousePressEvent(self, ev):
         super(PgImageWidget, self).mousePressEvent(ev)
-        print('mousePressEvent', ev)
+        # print('mousePressEvent', ev)
 
 
 class ImageWidget(RawWidget):
@@ -49,7 +49,6 @@ class ImageWidget(RawWidget):
             self.image_item.clear()
         else:
             self.image_item.setImage(image)
-
 
     def update(self):
         self.proxy.widget and self.proxy.widget.update()

@@ -25,7 +25,9 @@ enamldef Main(Main_): m:
     Container_:
         Form:
             Slider:
-                value := model.val
+                value := model.blur_kernel_size
+                minimum = 1
+                maximum = 9
             PushButton:
                 text = 'Get Contours'
                 clicked :: showContours()

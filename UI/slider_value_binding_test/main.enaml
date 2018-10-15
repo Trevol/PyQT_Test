@@ -1,0 +1,23 @@
+from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, ScrollArea, CheckBox, Splitter, SplitItem, Form, Slider,  Timer
+from atom.api import Atom, Int
+
+class TestModel(Atom):
+    pos = Int(3)
+
+enamldef Main(Window): m:
+    title = 'Test'
+    attr model = TestModel()
+    attr v2
+    v2 :: print(222)
+    Container:
+        PushButton:
+            text = 'Push!'
+            clicked ::
+                progress.value = 5
+                #m.model.pos = 5
+        Slider: progress:
+            value := m.model.pos
+            value >> m.v2
+
+            minimum = 1
+            maximum = 10

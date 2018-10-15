@@ -1,0 +1,34 @@
+from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, ScrollArea, CheckBox, Splitter, SplitItem, Form, Slider,  Timer
+from enaml.layout.api import hbox, vbox, align, spacer
+from UI.widgets.api import ImageWidget
+from video_model import VideoModel
+
+enamldef Container_(Container):
+    padding = 0
+
+enamldef Main(Window): m:
+    title = 'Video'
+
+    attr frame
+    attr model = VideoModel("d:\DiskE\Computer_Vision_Task\Video 2.mp4")
+
+    activated ::
+        t.start()
+    closed ::
+        model.destroy()
+    Container_:
+        Timer: t:
+            interval << model.frame_interval()
+            timeout ::
+                f = model.next_frame()
+                if f is None:
+                    self.stop()
+                else:
+                    m.frame = f
+
+        ImageWidget: video:
+            image << m.frame
+        Slider: progress:
+            value := model.current_pos
+            minimum = 1
+            maximum = model.frames_count()
