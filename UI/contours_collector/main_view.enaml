@@ -1,44 +1,74 @@
-from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, ScrollArea, CheckBox, Splitter, SplitItem, Form, Slider
+from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, Slider, DualSlider, SpinBox, ObjectCombo
 from enaml.core.api import Looper
 from enaml.layout.api import hbox, vbox, align, spacer
 from atom.api import ContainerList
 from UI.widgets.api import MultiselectWidget, ImageWidget
-from contours_collector_model import ContoursCollectorModel
+from contours_collector_model import ContoursCollectorModel, blur_kernel_size_options
 
 enamldef Container_(Container):
     padding = 0
 
-class Main_(Window):
-    selectedItems = ContainerList(default = [1, 2])
+frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_2770_184666.67_184.67.jpg"
 
-enamldef Main(Main_): m:
+enamldef Main(Window): m:
     title = 'Contours'
 
     attr im_contours
-    attr model = ContoursCollectorModel('../../images/contacts/3contacts.jpg')
+    attr model = ContoursCollectorModel(frame)
 
-    initialized :: showContours()
+    initialized :: show_contours()
 
-    func showContours():
-        self.im_contours = model.collectContours()
+    func show_contours():
+        self.im_contours = model.contours_image()
+
+    func show_contours_auto_canny():
+        self.im_contours = model.contours_image_auto_canny()
 
     Container_:
-        Form:
-            Slider:
-                value := model.blur_kernel_size
-                minimum = 1
-                maximum = 9
-            PushButton:
+        Container:
+            constraints=[
+                vbox(
+                    hbox(s, spacer),
+                    hbox(area_filter_lbl, area_filter_lo_lbl, area_filter_hi_lbl, area_filter_slider),
+                    hbox(canny_thr_lbl, canny_thr_1_lbl, canny_thr_2_lbl, canny_thr_slider),
+                    hbox(get_contours_btn, get_contours_auto_btn, spacer)
+                )
+            ]
+            ObjectCombo: s:
+                selected := model.blur_kernel_size
+                items = blur_kernel_size_options
+
+            Label: area_filter_lbl:
+                text = 'By Area:'
+            Label: area_filter_lo_lbl:
+                text << str(model.area_filter_lo)
+            Label: area_filter_hi_lbl:
+                text << str(model.area_filter_hi)
+            DualSlider: area_filter_slider:
+                low_value := model.area_filter_lo
+                high_value := model.area_filter_hi
+                minimum = -1
+                maximum = 40000
+
+
+            Label: canny_thr_lbl:
+                text = 'Canny Thresholds:'
+            Label: canny_thr_1_lbl:
+                text << str(model.canny_thr_1)
+            DualSlider: canny_thr_slider:
+                low_value := model.canny_thr_1
+                high_value := model.canny_thr_2
+                minimum = 0
+                maximum = 255
+            Label: canny_thr_2_lbl:
+                text << str(model.canny_thr_2)
+
+            PushButton: get_contours_btn:
                 text = 'Get Contours'
-                clicked :: showContours()
-        Splitter:
-            SplitItem:
-                Container_:
-                    ImageWidget:
-                        image << im_contours
-            SplitItem:
-                Container_:
-                    ScrollArea: s:
-                        MultiselectWidget:
-                            options << [1, 2, 3]
-                            selectedOptions << m.selectedItems
+                clicked :: show_contours()
+            PushButton: get_contours_auto_btn:
+                text = 'Get Contours (Auto Canny)'
+                clicked :: show_contours_auto_canny()
+        Container_:
+            ImageWidget:
+                image << im_contours
