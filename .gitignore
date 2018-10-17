@@ -7,3 +7,4 @@ UI/multiselect/__pycache__/
 UI/widgets/__pycache__/
 __pycache__/
 kmeans/__pycache__/
+*.enamlc
