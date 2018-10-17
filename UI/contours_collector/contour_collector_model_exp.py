@@ -3,25 +3,15 @@ import time
 from UI.contours_collector.contours_collector_model import ContoursCollectorModel
 
 
-def intt(iterable):
-    '''
-    returns tuple with items rounded to int
-    '''
-    return tuple(round(i) for i in iterable)
-
-
-def box_to_ellipse(center, axes, angle):
-    return center, (axes[0] / 2, axes[1] / 2), angle
-
-
 def main():
-    frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_2770_184666.67_184.67.jpg"
-    #frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_0068_4533.33_4.53.jpg"
+    frame = "D:/DiskE/Computer_Vision_Task/frames_2/f_483_32200.00_32.20.jpg"
+    #frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_2770_184666.67_184.67.jpg"
+    # frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_0068_4533.33_4.53.jpg"
     model = ContoursCollectorModel(frame)
 
     t0 = time.time()
     contours, edges = model.find_contours()
-    print('contours', time.time()-t0)
+    print('contours', time.time() - t0)
     contours = [contour for contour in contours if len(contour.points) >= 5]
 
     t0 = time.time()
@@ -35,7 +25,7 @@ def main():
     print('draw ellipses', time.time() - t0)
 
     for contour in contours:
-        contour.draw(edges, (0,255,0), 1)
+        contour.draw(edges, (0, 255, 0), 1)
 
     cv2.imshow('ee', cv2.cvtColor(edges, cv2.COLOR_RGB2BGR))
     cv2.waitKey()
