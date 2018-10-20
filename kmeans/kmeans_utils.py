@@ -4,7 +4,10 @@ import numpy as np
 
 
 def cluster_img(img, n_clusters):
-    h, w, d = img.shape
+    if len(img.shape) == 3:
+        h, w, d = img.shape
+    else:
+        (h, w), d = img.shape, 1
     # take ab values
     img_array = np.reshape(img, (h * w, d))
 

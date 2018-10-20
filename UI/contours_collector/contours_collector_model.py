@@ -34,17 +34,17 @@ class ContoursCollectorModel(Atom):
 
     def contours_image(self):
         contours, edges = self.find_contours()
-        #return edges
-        print(edges.shape, edges.dtype)
-        return draw_contours(contours, edges)
-        #return draw_contours(contours, self.image_rgb.copy())
+        im = draw_contours(contours, edges)
+        print(im.shape, im.dtype, np.unique(im))
+        return im
+        # return draw_contours(contours, self.image_rgb.copy())
 
     def contours_image_auto_canny(self):
         contours, edges = self.find_contours()
         return draw_contours(contours, self.image_rgb.copy())
 
     def find_contours(self):
-        #image_rgb = self._blur_original_image()
+        # image_rgb = self._blur_original_image()
         image_rgb = self.image_rgb
 
         channels = self._get_single_channel_images(image_rgb)
@@ -104,9 +104,16 @@ class ContoursCollectorModel(Atom):
         return accum
 
 
+# def draw_contours(contours, dst):
+#     colors = utils.make_n_colors(len(contours))
+#     # np.random.shuffle(colors)
+#     for i, contour in enumerate(contours):
+#         contour.draw(dst, colors[i])
+#     return dst
+
 def draw_contours(contours, dst):
-    colors = utils.make_n_colors(len(contours))
+    # colors = utils.make_n_colors(len(contours))
     # np.random.shuffle(colors)
     for i, contour in enumerate(contours):
-        contour.draw(dst, colors[i])
+        contour.draw(dst, 50)
     return dst

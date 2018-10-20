@@ -10,7 +10,7 @@ def some_func():
 
 class ImageClustersModel(Atom):
     busy = Bool(False)
-    n_clusters = Int(8)
+    n_clusters = Int(2)
     image = Typed(np.ndarray)
     clustered_image = Typed(np.ndarray)
 
