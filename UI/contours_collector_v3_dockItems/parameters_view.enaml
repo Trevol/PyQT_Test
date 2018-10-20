@@ -1,0 +1,52 @@
+from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, Slider, DualSlider, SpinBox, ObjectCombo
+from enaml.core.api import Looper
+from enaml.layout.api import hbox, vbox, align, spacer
+from atom.api import ContainerList
+from contours_collector import blur_kernel_size_options
+
+enamldef ParametersView(Container): m:
+
+    attr contoursCollector
+
+    constraints=[
+        vbox(
+            hbox(lbl_AreaFilter, lbl_AreaFilterLo, lbl_AreaFilterHi, slider_AreaFilter),
+            hbox(lbl_CannyThr, lbl_CannyThr_1, lbl_CannyThr_2, slider_CannyThr),
+            hbox(blurKernel, btn_Contours, btn_ContoursAuto, spacer)
+        )
+    ]
+    ObjectCombo: blurKernel:
+        selected := contoursCollector.blur_kernel_size
+        items = blur_kernel_size_options
+
+    Label: lbl_AreaFilter:
+        text = 'By Area:'
+    Label: lbl_AreaFilterLo:
+        text << str(contoursCollector.area_filter_lo)
+    Label: lbl_AreaFilterHi:
+        text << str(contoursCollector.area_filter_hi)
+    DualSlider: slider_AreaFilter:
+        low_value := contoursCollector.area_filter_lo
+        high_value := contoursCollector.area_filter_hi
+        minimum = -1
+        maximum = 40000
+
+
+    Label: lbl_CannyThr:
+        text = 'Canny Thresholds:'
+    Label: lbl_CannyThr_1:
+        text << str(contoursCollector.canny_thr_1)
+    DualSlider: slider_CannyThr:
+        low_value := contoursCollector.canny_thr_1
+        high_value := contoursCollector.canny_thr_2
+        minimum = 0
+        maximum = 255
+    Label: lbl_CannyThr_2:
+        text << str(contoursCollector.canny_thr_2)
+
+    PushButton: btn_Contours:
+        text = 'Get Contours'
+        clicked :: contoursCollector.make_contours()
+    PushButton: btn_ContoursAuto:
+        text = 'Get Contours (Auto Canny)'
+        clicked :: contoursCollector.make_contours(autoCannyThresholds = True)
