@@ -16,7 +16,6 @@ enamldef Main(Window): m:
 
     attr contoursCollector = ContoursCollector(frame)
 
-
     activated ::
         ParametersView(self, contoursCollector = contoursCollector).show()
         contoursCollector.make_contours()

@@ -13,6 +13,9 @@ enamldef ParametersView(Window): m:
 
     attr contoursCollector
 
+    closing::
+        change['value'].ignore()
+
     Container_:
         Container:
             constraints=[
