@@ -3,7 +3,7 @@ import cv2, math
 
 class Contour:
     _points = None
-    _area = None
+    _measurements = None
 
     def __init__(self, points):
         super(Contour, self).__init__()
@@ -12,18 +12,19 @@ class Contour:
     def points(self):
         return self._points
 
+    def len(self):
+        return len(self._points)
+
     def measurements(self):
         if not self._measurements:
             self._measurements = ContourMeasurements(self)
         return self._measurements
 
-    def area(self):
-        if self._area is None:
-            self._area = cv2.contourArea(self._points)
-        return self._area
-
     def draw(self, dst_image, color, thickness=-2):
         cv2.drawContours(dst_image, [self._points], 0, color, thickness=thickness)
+
+    def __str__(self):
+        return str(self.measurements().area)
 
 
 class FittedEllipse:
@@ -34,7 +35,7 @@ class FittedEllipse:
 
     def __init__(self, contour):
         super(FittedEllipse, self).__init__()
-        (self.center, self.axes, self.angle) = box_to_ellipse(cv2.fitEllipseDirect(contour.points()))
+        (self.center, self.axes, self.angle) = box_to_ellipse(*cv2.fitEllipseDirect(contour.points()))
         self.area = self.axes[0] * self.axes[1] * math.pi
 
     def draw(self, im, color):
@@ -49,9 +50,10 @@ class ContourMeasurements:
     def __init__(self, contour: Contour):
         super(ContourMeasurements, self).__init__()
         self._contour = contour
-        self.area = cv2.contourArea(contour.point())
+        self.area = cv2.contourArea(contour.points())
         self.centroid = centroid(contour.points())
-        self.fittedEllipse = FittedEllipse(contour)
+        if contour.len() >= 5:
+            self.fittedEllipse = FittedEllipse(contour)
 
     def draw(self, im, color):
         # draw centroid
@@ -61,8 +63,11 @@ class ContourMeasurements:
 
 def centroid(points):
     m = cv2.moments(points)
-    cx = int(m["m10"] / m["m00"])
-    cy = int(m["m01"] / m["m00"])
+    m00 = m["m00"]
+    if not m00:
+        return None
+    cx = int(m["m10"] / m00)
+    cy = int(m["m01"] / m00)
     return cx, cy
 
 

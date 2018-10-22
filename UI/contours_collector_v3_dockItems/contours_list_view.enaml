@@ -1,0 +1,26 @@
+from enaml.widgets.api import Container, ScrollArea, CheckBox, Label
+from enaml.core.api import Looper
+from contours_list import ContoursList
+
+enamldef ContoursListView(Container):
+    padding = 5
+    attr contoursList: ContoursList
+
+    CheckBox:
+        text << 'Check/uncheck all ({l})'.format(l = len(contoursList.items))
+        checked << len(contoursList.items) == len(contoursList.selectedItems)
+        toggled ::
+            contoursList.toggle_all(toggled = change['value'])
+    ScrollArea:
+        border = None
+        Container:
+            padding = 0
+            Looper:
+                iterable << contoursList.items
+                CheckBox:
+                    attr contour = loop_item
+                    text << str(contour.measurements().area)
+                    checked << contour in contoursList.selectedItems
+                    toggled ::
+                        toggled = change['value']
+                        contoursList.toggle_item(contour, toggled)

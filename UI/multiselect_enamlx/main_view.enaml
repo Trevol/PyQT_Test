@@ -1,0 +1,33 @@
+from enaml.widgets.api import Window, Container, CheckBox, PushButton, Label
+from enaml.core.api import Looper
+from enamlx.widgets.api import (TableView)
+from enaml.core.declarative import d_
+from main_model import MainModel
+from atom.api import ContainerList, Typed
+
+
+enamldef Main(Window):
+    attr model = get_model()
+    Container:
+        PushButton:
+            text = 'Select 3'
+            clicked ::
+                # model.checked_items.append(3)
+                model.checked_items.extend([3])
+        Label:
+            text << str(len(model.checked_items))
+        Looper:
+            iterable << model.items
+            CheckBox:
+                text << str(loop_item)
+                checked << loop_item in model.checked_items
+                toggled ::
+                    toggled = change['value']
+                    if toggled:
+                        model.checked_items.append(loop_item)
+                    else:
+                        model.checked_items.remove(loop_item)
+
+
+def get_model():
+     return MainModel(items = [1, 2, 3, 4], checked_items = [1, 2, 4])

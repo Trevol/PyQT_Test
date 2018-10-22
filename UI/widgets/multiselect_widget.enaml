@@ -1,25 +1,40 @@
 from enaml.widgets.api import CheckBox, Container
 from enaml.core.api import Looper
 
+
+
 enamldef MultiselectWidget(Container): s:
+    padding = 0
     attr options
-    attr selectedOptions = []
+    attr selectedOptions
     attr optionsText
+    attr ch = True
+    #TODO: may by use model class with @observe??
+    #initialized :: self.observe('selectedOptions', lambda ch: print(type(ch['value']), ch))
 
     func toggleOptionSelection(option, toggled):
+        if not self.selectedOptions:
+            return
         if toggled:
             self.selectedOptions.append(option)
         else:
             self.selectedOptions.remove(option)
 
-    func isSelected(option):
-        return option in self.selectedOptions
-    Looper:
+    func itemText(item):
+        return _str((optionsText or _str)(item))
+
+    func isSelected(option, *args):
+        return self.selectedOptions and option in self.selectedOptions
+
+    Looper: loop:
         iterable << options
         CheckBox:
-            text << (optionsText or _str)(loop_item)
-            checked << isSelected(loop_item)
-            toggled     :: toggleOptionSelection(loop_item, change['value'])
+            attr item << loop_item
+            attr selectedItems << s.selectedOptions
+
+            text << str(item.name) #_str((optionsText or _str)(item)) #itemText(loop_item)
+            checked := ch # s.selectedOptions is not None and item in s.selectedOptions # isSelected(item, selectedItems)
+            toggled :: toggleOptionSelection(item, change['value'])
 
 def _str(option):
         return str(option)

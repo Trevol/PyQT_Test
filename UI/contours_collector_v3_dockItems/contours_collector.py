@@ -1,8 +1,9 @@
-from atom.api import Atom, Int, Str, Typed, ContainerList
+from atom.api import Atom, Int, Str, Typed, ContainerList, observe
 import cv2
 import numpy as np
 import utils
 from contour import Contour
+from contours_list import ContoursList
 
 blur_kernel_size_options = [1, 3, 5, 7, 9]
 
@@ -17,18 +18,26 @@ class ContoursCollector(Atom):
     canny_thr_2 = Int(255)
 
     image_rgb = Typed(np.ndarray)
+    image_edges = Typed(np.ndarray)
     contoursImage = Typed(np.ndarray)
-    contours = ContainerList()
+    contoursList = ContoursList()
 
     def __init__(self, imageFile):
         self.image_rgb = cv2.cvtColor(cv2.imread(imageFile), cv2.COLOR_BGR2RGB)
+        self.contoursList.observe('selectedItems', self._draw_selected_contours)
 
     def make_contours(self, autoCannyThresholds=False):
-        contours, edges = self.find_contours()
-        self.contours.clear()
-        self.contours.extend(contours)
-        self.contoursImage = draw_contours(contours, edges)
-        # return draw_contours(contours, self.image_rgb.copy())
+        contours, image_edges = self.find_contours()
+        self.image_edges = cv2.cvtColor(image_edges, cv2.COLOR_GRAY2RGB)
+        self.contoursList.items = contours
+        self.contoursList.toggle_all(True)
+
+
+    def _draw_selected_contours(self, change):
+        if self.image_edges is None:
+            return
+        # self.contoursImage = self.image_edges
+        self.contoursImage = draw_contours(self.contoursList.selectedItems, self.image_edges.copy())
 
     def find_contours(self):
         image_rgb = self._blur_original_image()
@@ -40,7 +49,7 @@ class ContoursCollector(Atom):
 
         contours = [Contour(points) for points in contours]
         contours = [cont for cont in contours if self.area_filter_accept(cont)]
-        return sorted(contours, key=lambda c: c.area(), reverse=True), edges
+        return sorted(contours, key=lambda c: c.measurements().area, reverse=True), edges
 
     # def _find_contours_in_channels(self, channels):
     #     edges = self._combined_edges(channels)
@@ -49,7 +58,7 @@ class ContoursCollector(Atom):
     #     return sorted(r, key=lambda c: c.area(), reverse=True), edges
 
     def area_filter_accept(self, cont):
-        return self.area_filter_lo <= cont.area() <= self.area_filter_hi
+        return self.area_filter_lo <= cont.measurements().area <= self.area_filter_hi
 
     def _blur_original_image(self):
         if self.blur_kernel_size == 1:
@@ -57,7 +66,7 @@ class ContoursCollector(Atom):
         # return cv2.GaussianBlur(self.image_rgb, ksize=(self.blur_kernel_size, self.blur_kernel_size), sigmaX=2)
         return cv2.GaussianBlur(self.image_rgb, (self.blur_kernel_size, self.blur_kernel_size), 0)
         # return cv2.blur(self.image_rgb, ksize=(self.blur_kernel_size, self.blur_kernel_size))
-        return cv2.medianBlur(self.image_rgb, ksize=self.blur_kernel_size)
+        # return cv2.medianBlur(self.image_rgb, ksize=self.blur_kernel_size)
         # return cv2.bilateralFilter(self.image_rgb, d=0, sigmaColor=7, sigmaSpace=7)
 
     def _get_single_channel_images(self, rgb):

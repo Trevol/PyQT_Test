@@ -1,1 +1,4 @@
-- параметры в отдельное окно
+- implement contours selector using enamlx.TableView (measurements display in columns)
+- draw measurements: centroid, orientation (moments), fitted ellipse (with center)
+
++ параметры в отдельное окно

@@ -9,7 +9,7 @@ from UI.widgets.multiselect_widget import MultiselectWidget
 enamldef Main(Window): m:
     title = 'Multiselect'
     attr model = MainModel()
-
+    attr ch = False
     Container:
         constraints = [
             hbox(cont1, cont2),
@@ -20,7 +20,7 @@ enamldef Main(Window): m:
             Container:
                 padding = 0
                 constraints = [
-                    vbox(add_item_b, change_item_b, scroller)
+                    vbox(add_item_b, change_item_b, select_item_b, scroller)
                 ]
                 PushButton: add_item_b:
                     text = 'Add Item'
@@ -30,11 +30,14 @@ enamldef Main(Window): m:
                     clicked ::
                         if len(m.model.items):
                             m.model.items[0].name = 'Name {t}'.format(t = time.time())
+                PushButton: select_item_b:
+                    text = 'Toggle [0]'
+                    clicked :: m.model.toggle_item(0)
                 ScrollArea: scroller:
                     MultiselectWidget:
                         options << list(m.model.items)
-                        selectedOptions << m.model.selectedItems
-                        optionsText << lambda item: text_text_2(item, item.name)
+                        selectedOptions := m.model.selectedItems
+                        optionsText = lambda item: text_text_2(item, item.name)
 
 
         VGroup: cont2:
@@ -43,6 +46,12 @@ enamldef Main(Window): m:
                 padding = 0
 #                MultiselectWidget:
 #                    optionsText = fff
+                CheckBox:
+                    text = '12'
+                    checked >> ch
+                CheckBox:
+                    text = '34'
+                    checked << ch
                 ScrollArea: scroller2:
                     Container:
                         Looper:

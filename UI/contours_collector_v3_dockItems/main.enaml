@@ -4,7 +4,9 @@ from enaml.layout.api import hbox, vbox, align, spacer, HSplitLayout, VSplitLayo
 from atom.api import ContainerList
 from UI.widgets.api import MultiselectWidget, ImageWidget
 from parameters_view import ParametersView
+from contours_list_view import ContoursListView
 from contours_collector import ContoursCollector
+
 
 enamldef Container_(Container):
     padding = 0
@@ -16,9 +18,8 @@ enamldef Main(Window): m:
 
     attr contoursCollector = ContoursCollector(frame)
 
-    activated ::
-        # ParametersView(self, contoursCollector = contoursCollector).show()
-        contoursCollector.make_contours()
+    activated :: contoursCollector.make_contours()
+
     Container_:
         DockArea:
             layout = HSplitLayout(
@@ -35,6 +36,9 @@ enamldef Main(Window): m:
                 name = 'contours_item'
                 title = 'Contours'
                 closable = False
+                Container_:
+                    ContoursListView:
+                        contoursList = m.contoursCollector.contoursList
             DockItem:
                 name = 'image_item'
                 title = 'Image'
