@@ -22,6 +22,7 @@ class Contour:
 
     def draw(self, dst_image, color, thickness=-2):
         cv2.drawContours(dst_image, [self._points], 0, color, thickness=thickness)
+        self.measurements().draw(dst_image, color)
 
     def __str__(self):
         return str(self.measurements().area)
@@ -39,7 +40,7 @@ class FittedEllipse:
         self.area = self.axes[0] * self.axes[1] * math.pi
 
     def draw(self, im, color):
-        pass
+        cv2.ellipse(im, intt(self.center), intt(self.axes), self.angle, 0, 360, color, thickness=2)
 
 
 class ContourMeasurements:
@@ -59,8 +60,10 @@ class ContourMeasurements:
 
     def draw(self, im, color):
         # draw centroid
-        cv2.circle(im, intt(self.centroid), radius=1, color=color, thickness=-1)
-        self.fittedEllipse.draw(im, color)
+        if self.centroid:
+            cv2.circle(im, intt(self.centroid), radius=1, color=color, thickness=-1)
+        if self.fittedEllipse:
+            self.fittedEllipse.draw(im, color)
 
 
 def centroid(points):

@@ -1,4 +1,4 @@
-from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, Slider, DualSlider, SpinBox, ObjectCombo
+from enaml.widgets.api import Window, Container, PushButton, Label, Slider, SpinBox, DualSlider, SpinBox, ObjectCombo, Separator
 from enaml.core.api import Looper
 from enaml.layout.api import hbox, vbox, align, spacer
 from atom.api import ContainerList
@@ -10,8 +10,12 @@ enamldef ParametersView(Container): m:
 
     constraints=[
         vbox(
-            hbox(lbl_AreaFilter, lbl_AreaFilterLo, lbl_AreaFilterHi, slider_AreaFilter),
-            hbox(lbl_CannyThr, lbl_CannyThr_1, lbl_CannyThr_2, slider_CannyThr),
+            hbox(lbl_AreaFilter, spin_AreaFilterLo, spin_AreaFilterHi),
+            slider_AreaFilter,
+            sep_1,
+            hbox(lbl_CannyThr, spin_CannyThr_1, spin_CannyThr_2),
+            slider_CannyThr,
+            sep_2,
             hbox(blurKernel, btn_Contours, btn_ContoursAuto, spacer)
         )
     ]
@@ -21,28 +25,40 @@ enamldef ParametersView(Container): m:
 
     Label: lbl_AreaFilter:
         text = 'By Area:'
-    Label: lbl_AreaFilterLo:
-        text << str(contoursCollector.area_filter_lo)
-    Label: lbl_AreaFilterHi:
-        text << str(contoursCollector.area_filter_hi)
+    SpinBox: spin_AreaFilterLo:
+        value := contoursCollector.area_filter_lo
+        minimum = -1
+        maximum = 40000
+    SpinBox: spin_AreaFilterHi:
+        value := contoursCollector.area_filter_hi
+        minimum = -1
+        maximum = 40000
     DualSlider: slider_AreaFilter:
         low_value := contoursCollector.area_filter_lo
         high_value := contoursCollector.area_filter_hi
         minimum = -1
         maximum = 40000
+        tick_interval = 1000
 
+    Separator: sep_1: pass
 
     Label: lbl_CannyThr:
         text = 'Canny Thresholds:'
-    Label: lbl_CannyThr_1:
-        text << str(contoursCollector.canny_thr_1)
+    SpinBox: spin_CannyThr_1:
+        value := contoursCollector.canny_thr_1
+        minimum = 0
+        maximum = 255
+    SpinBox: spin_CannyThr_2:
+        value := contoursCollector.canny_thr_2
+        minimum = 0
+        maximum = 255
     DualSlider: slider_CannyThr:
         low_value := contoursCollector.canny_thr_1
         high_value := contoursCollector.canny_thr_2
         minimum = 0
         maximum = 255
-    Label: lbl_CannyThr_2:
-        text << str(contoursCollector.canny_thr_2)
+
+    Separator: sep_2: pass
 
     PushButton: btn_Contours:
         text = 'Get Contours'
