@@ -1,5 +1,4 @@
 # Created by .ignore support plugin (hsz.mobi)
-.gitignore
 .idea/
 UI/contours_collector/__pycache__/
 UI/kmean_color/__pycache__/
