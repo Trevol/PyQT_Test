@@ -1,15 +1,15 @@
-from atom.api import Atom, Int, Str, Typed
+from atom.api import Atom, Int, Str, Typed, ContainerList, observe
 import cv2
 import numpy as np
 import utils
 from contour import Contour
+from contours_list import ContoursList
 
 blur_kernel_size_options = [1, 3, 5, 7, 9]
 
 
-class ContoursCollectorModel(Atom):
+class ContoursCollector(Atom):
     blur_kernel_size = Int(3)
-    image_rgb = Typed(np.ndarray)
 
     area_filter_lo = Int(-1)
     area_filter_hi = Int(40000)
@@ -17,35 +17,30 @@ class ContoursCollectorModel(Atom):
     canny_thr_1 = Int(0)
     canny_thr_2 = Int(255)
 
+    image_rgb = Typed(np.ndarray)
+    image_edges = Typed(np.ndarray)
+    contoursImage = Typed(np.ndarray)
+    contoursList = ContoursList()
+
     def __init__(self, imageFile):
         self.image_rgb = cv2.cvtColor(cv2.imread(imageFile), cv2.COLOR_BGR2RGB)
+        self.contoursList.observe('selected_items', self._draw_selected_contours)
 
-    def auto_canny(image, sigma=0.33):
-        # compute the median of the single channel pixel intensities
-        v = np.median(image)
+    def make_contours(self, autoCannyThresholds=False):
+        contours, image_edges = self.find_contours()
+        self.image_edges = cv2.cvtColor(image_edges, cv2.COLOR_GRAY2RGB)
+        self.contoursList.items = contours
+        self.contoursList.toggle_all(True)
 
-        # apply automatic Canny edge detection using the computed median
-        lower = int(max(0, (1.0 - sigma) * v))
-        upper = int(min(255, (1.0 + sigma) * v))
-        edged = cv2.Canny(image, lower, upper)
 
-        # return the edged image
-        return edged
-
-    def contours_image(self):
-        contours, edges = self.find_contours()
-        im = draw_contours(contours, edges)
-        print(im.shape, im.dtype, np.unique(im))
-        return im
-        # return draw_contours(contours, self.image_rgb.copy())
-
-    def contours_image_auto_canny(self):
-        contours, edges = self.find_contours()
-        return draw_contours(contours, self.image_rgb.copy())
+    def _draw_selected_contours(self, change):
+        if self.image_edges is None:
+            return
+        # self.contoursImage = self.image_edges
+        self.contoursImage = draw_contours(self.contoursList.selected_items, self.image_edges.copy())
 
     def find_contours(self):
-        # image_rgb = self._blur_original_image()
-        image_rgb = self.image_rgb
+        image_rgb = self._blur_original_image()
 
         channels = self._get_single_channel_images(image_rgb)
 
@@ -54,7 +49,7 @@ class ContoursCollectorModel(Atom):
 
         contours = [Contour(points) for points in contours]
         contours = [cont for cont in contours if self.area_filter_accept(cont)]
-        return sorted(contours, key=lambda c: c.area(), reverse=True), edges
+        return sorted(contours, key=lambda c: c.measurements().area, reverse=True), edges
 
     # def _find_contours_in_channels(self, channels):
     #     edges = self._combined_edges(channels)
@@ -63,13 +58,15 @@ class ContoursCollectorModel(Atom):
     #     return sorted(r, key=lambda c: c.area(), reverse=True), edges
 
     def area_filter_accept(self, cont):
-        return self.area_filter_lo <= cont.area() <= self.area_filter_hi
+        return self.area_filter_lo <= cont.measurements().area <= self.area_filter_hi
 
     def _blur_original_image(self):
+        if self.blur_kernel_size == 1:
+            return self.image_rgb
         # return cv2.GaussianBlur(self.image_rgb, ksize=(self.blur_kernel_size, self.blur_kernel_size), sigmaX=2)
         return cv2.GaussianBlur(self.image_rgb, (self.blur_kernel_size, self.blur_kernel_size), 0)
         # return cv2.blur(self.image_rgb, ksize=(self.blur_kernel_size, self.blur_kernel_size))
-        return cv2.medianBlur(self.image_rgb, ksize=self.blur_kernel_size)
+        # return cv2.medianBlur(self.image_rgb, ksize=self.blur_kernel_size)
         # return cv2.bilateralFilter(self.image_rgb, d=0, sigmaColor=7, sigmaSpace=7)
 
     def _get_single_channel_images(self, rgb):
@@ -104,16 +101,22 @@ class ContoursCollectorModel(Atom):
         return accum
 
 
-# def draw_contours(contours, dst):
-#     colors = utils.make_n_colors(len(contours))
-#     # np.random.shuffle(colors)
-#     for i, contour in enumerate(contours):
-#         contour.draw(dst, colors[i])
-#     return dst
-
 def draw_contours(contours, dst):
-    # colors = utils.make_n_colors(len(contours))
+    colors = utils.make_n_colors(len(contours))
     # np.random.shuffle(colors)
     for i, contour in enumerate(contours):
-        contour.draw(dst, 50)
+        contour.draw(dst, colors[i])
     return dst
+
+
+def auto_canny_example(image, sigma=0.33):
+    # compute the median of the single channel pixel intensities
+    v = np.median(image)
+
+    # apply automatic Canny edge detection using the computed median
+    lower = int(max(0, (1.0 - sigma) * v))
+    upper = int(min(255, (1.0 + sigma) * v))
+    edged = cv2.Canny(image, lower, upper)
+
+    # return the edged image
+    return edged

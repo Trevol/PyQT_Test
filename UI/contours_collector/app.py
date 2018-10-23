@@ -1,4 +1,6 @@
 import sys_excepthook_setup
+import enamlx
+enamlx.install()
 from enaml import imports as enaml_imports
 from enaml.qt.qt_application import QtApplication
 

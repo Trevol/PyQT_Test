@@ -3,16 +3,16 @@ from atom.api import Atom, ContainerList, observe
 
 class ContoursList(Atom):
     items = ContainerList()
-    selectedItems = ContainerList()
+    selected_items = ContainerList()
 
     def toggle_item(self, item, toggled):
         if toggled:
-            self.selectedItems.append(item)
+            self.selected_items.append(item)
         else:
-            self.selectedItems.remove(item)
+            self.selected_items.remove(item)
 
     def toggle_all(self, toggled):
         if toggled:
-            self.selectedItems = self.items
+            self.selected_items = self.items
         else:
-            self.selectedItems = []
+            self.selected_items = []
