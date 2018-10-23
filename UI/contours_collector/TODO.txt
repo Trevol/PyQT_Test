@@ -2,7 +2,7 @@
     - draw ellipse center
 
 - ImageWidget improvements:
-    - fit image to dimension
+    - fit image to the widget size
     - scroll bars ()
     - zoom
 - select contours by mouse (hit to fittedEllipse)

@@ -41,6 +41,7 @@ class FittedEllipse:
 
     def draw(self, im, color):
         cv2.ellipse(im, intt(self.center), intt(self.axes), self.angle, 0, 360, color, thickness=2)
+        cv2.circle(im, intt(self.center), 2, color=(255, 255, 255), thickness=-1)
 
 
 class ContourMeasurements:
@@ -61,7 +62,7 @@ class ContourMeasurements:
     def draw(self, im, color):
         # draw centroid
         if self.centroid:
-            cv2.circle(im, intt(self.centroid), radius=1, color=color, thickness=-1)
+            cv2.circle(im, intt(self.centroid), radius=2, color=color, thickness=-1)
         if self.fittedEllipse:
             self.fittedEllipse.draw(im, color)
 
