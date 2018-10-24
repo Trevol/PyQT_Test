@@ -28,8 +28,8 @@ class PgImageWidget(pg.GraphicsView):
 
 
 class ImageWidget(RawWidget):
-    hug_width = set_default('ignore')
-    hug_height = set_default('ignore')
+    hug_width = set_default('weak')
+    hug_height = set_default('weak')
 
     image = d_(Typed(np.ndarray))
     image_item = Typed(pg.ImageItem)
@@ -49,6 +49,13 @@ class ImageWidget(RawWidget):
             self.image_item.clear()
         else:
             self.image_item.setImage(image)
+            # self._resize_to_image(image.shape)
+
+    def _resize_to_image(self, image_shape):
+        h, w = image_shape[0:2]
+        self.proxy.widget.resize(h, w)
+        print(self.proxy.widget.size(), h, w)
+        self.update()
 
     def update(self):
         self.proxy.widget and self.proxy.widget.update()
