@@ -15,14 +15,7 @@ img = cv2.blur(img, ksize=(3, 3))
 
 f = cv2.ximgproc.RidgeDetectionFilter_create(dx=1, dy=1)
 ridges = f.getRidgeFilteredImage(img)
-
-thin = cv2.ximgproc.thinning(ridges, thinningType=cv2.ximgproc.THINNING_ZHANGSUEN)
-
-
-#_, ridges = cv2.threshold(ridges, 0, 255, cv2.THRESH_BINARY or cv2.THRESH_OTSU)
+_, ridges = cv2.threshold(ridges, 0, 255, cv2.THRESH_BINARY or cv2.THRESH_OTSU)
 #ridges = skeletonize(img_as_float(ridges))
-#edges = cv2.Canny(ridges, 0, 100)
 
-cv2.imshow('ridges', ridges)
-cv2.imshow('thin', thin)
-cv2.waitKey()
+cv2.imshow('blur', img_as_ubyte(ridges)), cv2.waitKey()

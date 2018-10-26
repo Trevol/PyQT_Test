@@ -1,0 +1,42 @@
+from enaml.widgets.api import Window, Container, ScrollArea, Menu, Action
+from enaml.image import Image
+from image_view_ex import ImageViewEx
+from enamlx.widgets.api import GraphicsView, GraphicsImageItem
+import cv2
+
+enamldef MainView(Window):
+    Container:
+        padding = 0
+        ScrollArea:
+            border = None
+            Container:
+                padding = 0
+#                GraphicsView:
+#                    Menu:
+#                        context_menu = True
+#                        Action:
+#                            text = 'ACTION!!!'
+#                            triggered :: print('ACTION triggered')
+#                    mouse_press_event => (event):
+#                        print(event)
+#                    wheel_event => (event):
+#                        print(event)
+#                    GraphicsImageItem:
+#                        image << get_image()
+                ImageViewEx:
+                    Menu:
+                        context_menu = True
+                        Action:
+                            text = 'ACTION!!!'
+                            triggered :: print('ACTION triggered')
+                    image << get_np_image()
+
+def get_image():
+    frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_2770_184666.67_184.67.jpg"
+    data = open(frame, 'rb').read()
+    return Image(data=data)
+
+def get_np_image():
+    frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_2770_184666.67_184.67.jpg"
+    return cv2.cvtColor(cv2.imread(frame), cv2.COLOR_BGR2HSV)[:, :, 1].copy()
+    return cv2.imread(frame, cv2.IMREAD_GRAYSCALE) #[:, :, 0]

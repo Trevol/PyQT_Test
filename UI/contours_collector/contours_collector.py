@@ -72,16 +72,16 @@ class ContoursCollector(Atom):
     def _get_single_channel_images(self, rgb):
         # gray, R G B, A B
         gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
-        lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB)
-        # hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+        #lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB)
+        #hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
         return [
             gray,
             # rgb[..., 0],
             # rgb[..., 1],
             # rgb[..., 2],
             # lab[..., 0],
-            lab[..., 1],
-            lab[..., 2],
+            #lab[..., 1],
+            #lab[..., 2],
             # hsv[..., 0],
             # hsv[..., 1],
             # hsv[..., 2],

@@ -1,4 +1,4 @@
-from enaml.widgets.api import Window, Container, VGroup, PushButton, Label, Slider, DualSlider, SpinBox, ObjectCombo, DockArea, DockItem, ScrollArea, ImageView
+from enaml.widgets.api import (Window, Container, VGroup, PushButton, Label, Slider, DualSlider, SpinBox, ObjectCombo, DockArea, DockItem, ScrollArea, ImageView, Menu, Action)
 from enaml.core.api import Looper
 from enaml.layout.api import hbox, vbox, align, spacer, HSplitLayout, VSplitLayout
 from atom.api import ContainerList
@@ -6,6 +6,7 @@ from UI.widgets.api import MultiselectWidget, NpImageView
 from parameters_view import ParametersView
 from contours_list_view import ContoursListView
 from contours_collector import ContoursCollector
+from contours_image_view import ContoursImageView
 
 enamldef Container_(Container):
     padding = 0
@@ -42,9 +43,5 @@ enamldef Main(Window): m:
                 name = 'image_item'
                 title = 'Image'
                 closable = False
-                Container_:
-                    ScrollArea:
-                        border = None
-                        Container_:
-                            NpImageView:
-                                npimage << m.contoursCollector.contoursImage
+                ContoursImageView:
+                    contoursCollector << m.contoursCollector

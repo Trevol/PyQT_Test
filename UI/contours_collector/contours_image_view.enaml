@@ -1,0 +1,12 @@
+from enaml.widgets.api import Menu, Action, Container, ScrollArea
+from image_view_ex import ImageViewEx as ImageView
+
+enamldef ContoursImageView(Container):
+    padding = 0
+    attr contoursCollector
+    ScrollArea:
+        border = None
+        Container:
+            padding=0
+            ImageView:
+                image << contoursCollector.contoursImage
