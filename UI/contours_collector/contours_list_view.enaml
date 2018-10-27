@@ -27,6 +27,8 @@ enamldef ContoursSelector(TableView): table:
             TableViewItem:
                 text << str(current_item.measurements().centroid)
             TableViewItem:
+                def ttt():
+                    pass
                 attr ellipse = current_item.measurements().fittedEllipse
                 attr s = '{a:.1f} ({cx:.1f} {cy:.1f})'.format(a = ellipse.area, cx = ellipse.center[0], cy = ellipse.center[1])
                 text << ellipse and s
@@ -36,8 +38,11 @@ enamldef ContoursListView(Container): this:
     padding = 5
     attr contoursList: ContoursList
 
+    def check_all_text(items, selected_items):
+        return 'Check/uncheck all ({selected}/{all})'.format(all = len(items), selected=len(selected_items))
+
     CheckBox:
-        text << 'Check/uncheck all ({l})'.format(l = len(contoursList.items))
+        text << check_all_text(contoursList.items, contoursList.selected_items)
         checked << len(contoursList.items) == len(contoursList.selected_items)
         toggled :: contoursList.toggle_all(toggled = change['value'])
     ContoursSelector:

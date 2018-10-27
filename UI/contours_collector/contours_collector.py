@@ -100,6 +100,10 @@ class ContoursCollector(Atom):
             accum = cv2.bitwise_or(accum, edges)
         return accum
 
+    def select_contours_at_point(self, x, y):
+        contours_under_mouse = self.contoursList.items_at_point(x, y)
+        self.contoursList.selected_items = contours_under_mouse
+
 
 def draw_contours(contours, dst):
     colors = utils.make_n_colors(len(contours))

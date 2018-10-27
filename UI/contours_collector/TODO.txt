@@ -7,5 +7,17 @@
     - zoom
 - select contours by mouse (hit to fittedEllipse)
 
+
+- auto thresholding for edge detection (для уточнения поиска)
+   - How do I set the upper and lower threshold in canny edge detection?
+   - https://www.quora.com/How-do-I-set-the-upper-and-lower-threshold-in-canny-edge-detection#
+        - посмотреть ответы - там толковый советы
+            - You can find the mean of the grayscale values and keep the lower and higher thresholds as ±25% of the mean.
+            - !!! http://www.kerrywong.com/2009/05/07/canny-edge-detection-auto-thresholding/
+            - There is another paper “CannyLines”, here they have found the lower and higher thresholds using Helmholtz principle
+                    http://cvrs.whu.edu.cn/projects/cannyLines/
+            - 1) Perform OTSU segmentation on your image. 2) upperthresh=OTSU(inputgrayscaleimage) 3) lowerthresh=0.5∗upperthresh 4) Choose a suitable scaling factor if .5 doesn’t work for you.
+   - https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
+
 + implement contours selector using enamlx.TableView (measurements display in columns)
 + параметры в отдельное окно

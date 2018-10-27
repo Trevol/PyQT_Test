@@ -16,3 +16,6 @@ class ContoursList(Atom):
             self.selected_items = self.items
         else:
             self.selected_items = []
+
+    def items_at_point(self, x, y):
+        return [contour for contour in self.items if contour.point_test(x, y)]

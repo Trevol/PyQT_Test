@@ -27,21 +27,35 @@ class Contour:
     def __str__(self):
         return str(self.measurements().area)
 
+    def point_test(self, x, y):
+        dist_from_contour = cv2.pointPolygonTest(self._points, (x, y), measureDist=True)
+        if dist_from_contour >= -10: #accepted if inside closed contour (> 0) or on edge (==0) or outside but near contour (distance from contour <= -10)
+            return True
+        fitted_ellipse = self.measurements().fittedEllipse
+        return fitted_ellipse and fitted_ellipse.point_test(x, y)
+
 
 class FittedEllipse:
     center = None
     axes = None
     angle = None
     area = None
+    polygon = None
 
     def __init__(self, contour):
         super(FittedEllipse, self).__init__()
         (self.center, self.axes, self.angle) = box_to_ellipse(*cv2.fitEllipseDirect(contour.points()))
+        self.center_i, self.axes_i = intt(self.center), intt(self.axes)  # values rounded to int
         self.area = self.axes[0] * self.axes[1] * math.pi
 
     def draw(self, im, color):
-        cv2.ellipse(im, intt(self.center), intt(self.axes), self.angle, 0, 360, color, thickness=2)
+        cv2.ellipse(im, self.center_i, self.axes_i, self.angle, 0, 360, color, thickness=2)
         cv2.circle(im, intt(self.center), 2, color=(255, 255, 255), thickness=-1)
+
+    def point_test(self, x, y):
+        if self.polygon is None:
+            self.polygon = cv2.ellipse2Poly(self.center_i, self.axes_i, int(self.angle), 0, 360, delta=1)
+        return cv2.pointPolygonTest(self.polygon, (x, y), measureDist=False) >= 0
 
 
 class ContourMeasurements:

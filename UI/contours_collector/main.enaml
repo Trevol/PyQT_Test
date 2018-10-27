@@ -7,6 +7,7 @@ from parameters_view import ParametersView
 from contours_list_view import ContoursListView
 from contours_collector import ContoursCollector
 from contours_image_view import ContoursImageView
+from enaml.qt.qt_application import timedCall
 
 enamldef Container_(Container):
     padding = 0
@@ -18,7 +19,7 @@ enamldef Main(Window): m:
 
     attr contoursCollector = ContoursCollector(frame)
 
-    activated :: contoursCollector.make_contours()
+    activated :: timedCall(100, contoursCollector.make_contours)
 
     Container_:
         DockArea:
