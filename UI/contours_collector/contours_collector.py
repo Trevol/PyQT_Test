@@ -33,6 +33,7 @@ class ContoursCollector(Atom):
         self.contoursList.toggle_all(True)
 
 
+
     def _draw_selected_contours(self, change):
         if self.image_edges is None:
             return

@@ -1,6 +1,6 @@
 from enaml.widgets.api import (Window, Container, VGroup, PushButton, Label, Slider, DualSlider, SpinBox, ObjectCombo, DockArea, DockItem, ScrollArea, ImageView, Menu, Action)
 from enaml.core.api import Looper
-from enaml.layout.api import hbox, vbox, align, spacer, HSplitLayout, VSplitLayout
+from enaml.layout.api import hbox, vbox, align, spacer, HSplitLayout, VSplitLayout, TabLayout
 from atom.api import ContainerList
 from UI.widgets.api import MultiselectWidget, NpImageView
 from parameters_view import ParametersView
@@ -25,7 +25,7 @@ enamldef Main(Window): m:
         DockArea:
             layout = HSplitLayout(
                 VSplitLayout('params_item', 'contours_item'),
-                'image_item'
+                TabLayout('contours_image', 'ellipses_image')
             )
             DockItem:
                 name = 'params_item'
@@ -41,8 +41,12 @@ enamldef Main(Window): m:
                     ContoursListView:
                         contoursList = m.contoursCollector.contoursList
             DockItem:
-                name = 'image_item'
-                title = 'Image'
+                name = 'contours_image'
+                title = 'Contours'
                 closable = False
                 ContoursImageView:
                     contoursCollector << m.contoursCollector
+            DockItem:
+                name = 'ellipses_image'
+                title = 'ellipses'
+                closable = False

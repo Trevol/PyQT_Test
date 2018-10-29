@@ -1,4 +1,4 @@
-from enaml.widgets.api import Container, ScrollArea, CheckBox, Label
+from enaml.widgets.api import Container, ScrollArea, CheckBox, Label, Splitter, SplitItem
 from enaml.core.api import Looper
 from enamlx.widgets.api import (TableView, TableViewRow, TableViewItem)
 from contours_list import ContoursList
@@ -10,6 +10,36 @@ enamldef ContoursSelector(TableView): table:
 
     attr contoursList
     items << contoursList.items
+
+    Looper:
+        iterable << range(table.visible_rows)
+        TableViewRow:
+            row << table.visible_row+loop_index
+            attr current_item << table.items[self.row]
+
+            TableViewItem:
+                text << str(current_item.measurements().contour_len)
+                checkable = True
+                checked << current_item in contoursList.selected_items
+                toggled :: contoursList.toggle_item(current_item, toggled = change['value'])
+            TableViewItem:
+                text << str(current_item.measurements().area)
+            TableViewItem:
+                text << str(current_item.measurements().centroid)
+            TableViewItem:
+                def ttt():
+                    pass
+                attr ellipse = current_item.measurements().fittedEllipse
+                attr s = '{a:.1f} ({cx:.1f} {cy:.1f})'.format(a = ellipse.area, cx = ellipse.center[0], cy = ellipse.center[1])
+                text << ellipse and s
+
+
+enamldef ReadonlyContoursListView(TableView): table:
+    visible_rows = 100
+    horizontal_headers = ['Length', 'Area', 'Centroid', 'Ellipse (Area, Center)']
+
+    attr contoursList
+    items << contoursList.selected_items
 
     Looper:
         iterable << range(table.visible_rows)
@@ -46,4 +76,6 @@ enamldef ContoursListView(Container): this:
         checked << len(contoursList.items) == len(contoursList.selected_items)
         toggled :: contoursList.toggle_all(toggled = change['value'])
     ContoursSelector:
+        contoursList << this.contoursList
+    ReadonlyContoursListView:
         contoursList << this.contoursList
