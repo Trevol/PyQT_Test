@@ -6,10 +6,10 @@ from contours_list import ContoursList
 
 enamldef ContoursSelector(TableView): table:
     visible_rows = 100
-    horizontal_headers = ['Length', 'Area', 'Centroid', 'Ellipse (Area, Center)']
+    selection_behavior = 'rows'
+    horizontal_headers = ['Length', 'Area', 'Centroid', 'Ellipse (Area, Center)', 'ArcLen (Closed, Open)']
 
     attr contoursList
-    items << contoursList.items
 
     Looper:
         iterable << range(table.visible_rows)
@@ -27,41 +27,16 @@ enamldef ContoursSelector(TableView): table:
             TableViewItem:
                 text << str(current_item.measurements().centroid)
             TableViewItem:
-                def ttt():
-                    pass
-                attr ellipse = current_item.measurements().fittedEllipse
-                attr s = '{a:.1f} ({cx:.1f} {cy:.1f})'.format(a = ellipse.area, cx = ellipse.center[0], cy = ellipse.center[1])
-                text << ellipse and s
-
-
-enamldef ReadonlyContoursListView(TableView): table:
-    visible_rows = 100
-    horizontal_headers = ['Length', 'Area', 'Centroid', 'Ellipse (Area, Center)']
-
-    attr contoursList
-    items << contoursList.selected_items
-
-    Looper:
-        iterable << range(table.visible_rows)
-        TableViewRow:
-            row << table.visible_row+loop_index
-            attr current_item << table.items[self.row]
-
+                def get_text(current_item):
+                    ellipse = current_item.measurements().fittedEllipse
+                    return '{a:.1f} ({cx:.1f} {cy:.1f})'.format(a = ellipse.area, cx = ellipse.center[0], cy = ellipse.center[1])
+                text << get_text(current_item)
             TableViewItem:
-                text << str(current_item.measurements().contour_len)
-                checkable = True
-                checked << current_item in contoursList.selected_items
-                toggled :: contoursList.toggle_item(current_item, toggled = change['value'])
-            TableViewItem:
-                text << str(current_item.measurements().area)
-            TableViewItem:
-                text << str(current_item.measurements().centroid)
-            TableViewItem:
-                def ttt():
-                    pass
-                attr ellipse = current_item.measurements().fittedEllipse
-                attr s = '{a:.1f} ({cx:.1f} {cy:.1f})'.format(a = ellipse.area, cx = ellipse.center[0], cy = ellipse.center[1])
-                text << ellipse and s
+                def get_text(current_item):
+                    m = current_item.measurements()
+                    return '{c:.1f}  {o:.1f}'.format(c = m.arc_len_closed, o = m.arc_len_open)
+                text << get_text(current_item)
+
 
 
 enamldef ContoursListView(Container): this:
@@ -70,12 +45,22 @@ enamldef ContoursListView(Container): this:
 
     def check_all_text(items, selected_items):
         return 'Check/uncheck all ({selected}/{all})'.format(all = len(items), selected=len(selected_items))
-
-    CheckBox:
-        text << check_all_text(contoursList.items, contoursList.selected_items)
-        checked << len(contoursList.items) == len(contoursList.selected_items)
-        toggled :: contoursList.toggle_all(toggled = change['value'])
-    ContoursSelector:
-        contoursList << this.contoursList
-    ReadonlyContoursListView:
-        contoursList << this.contoursList
+    Splitter:
+        orientation='vertical'
+        SplitItem:
+            stretch = 0
+            Container:
+                padding=0
+                CheckBox:
+                    text << check_all_text(contoursList.items, contoursList.selected_items)
+                    checked << len(contoursList.items) == len(contoursList.selected_items)
+                    toggled :: contoursList.toggle_all(toggled = change['value'])
+                ContoursSelector:
+                    contoursList << this.contoursList
+                    items << contoursList.selected_items
+        SplitItem:
+            Container:
+                padding=0
+                ContoursSelector:
+                    contoursList << this.contoursList
+                    items << this.contoursList.items

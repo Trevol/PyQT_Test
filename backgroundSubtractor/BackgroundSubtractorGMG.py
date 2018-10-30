@@ -1,16 +1,5 @@
 import numpy as np
 import cv2 as cv
+from bg_substractor_utils import do_substraction
 
-cap = cv.VideoCapture("d:\DiskE\Computer_Vision_Task\Video 2.mp4")
-kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
-fgbg = cv.bgsegm.createBackgroundSubtractorGMG()
-while (1):
-    ret, frame = cap.read()
-    fgmask = fgbg.apply(frame)
-    #fgmask = cv.morphologyEx(fgmask, cv.MORPH_OPEN, kernel)
-    cv.imshow('frame', fgmask)
-    k = cv.waitKey(30) & 0xff
-    if k == 27:
-        break
-cap.release()
-cv.destroyAllWindows()
+do_substraction("d:\DiskE\Computer_Vision_Task\Video 2.mp4", cv.bgsegm.createBackgroundSubtractorGMG())

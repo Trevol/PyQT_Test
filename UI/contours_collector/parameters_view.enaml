@@ -16,12 +16,10 @@ enamldef ParametersView(Container): m:
             hbox(lbl_CannyThr, spin_CannyThr_1, spin_CannyThr_2),
             slider_CannyThr,
             sep_2,
-            hbox(blurKernel, btn_Contours, btn_ContoursAuto, spacer)
+            hbox(btn_Contours, btn_ContoursAuto, spacer),
+            hbox(blurKernel, base_image_combo, spacer)
         )
     ]
-    ObjectCombo: blurKernel:
-        selected := contoursCollector.blur_kernel_size
-        items = blur_kernel_size_options
 
     Label: lbl_AreaFilter:
         text = 'By Area:'
@@ -65,4 +63,11 @@ enamldef ParametersView(Container): m:
         clicked :: contoursCollector.make_contours()
     PushButton: btn_ContoursAuto:
         text = 'Get Contours (Auto Canny)'
-        clicked :: contoursCollector.make_contours(autoCannyThresholds = True)
+        clicked :: pass #contoursCollector.make_contours(autoCannyThresholds = True)
+
+    ObjectCombo: blurKernel:
+        selected := contoursCollector.blur_kernel_size
+        items = blur_kernel_size_options
+    ObjectCombo: base_image_combo:
+        selected := contoursCollector.base_image_kind
+        items = list(getattr(type(contoursCollector), 'base_image_kind').items)

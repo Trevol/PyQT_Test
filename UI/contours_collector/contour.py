@@ -31,7 +31,7 @@ class Contour:
         dist_from_contour = cv2.pointPolygonTest(self._points, (x, y), measureDist=True)
         if dist_from_contour >= -10: #accepted if inside closed contour (> 0) or on edge (==0) or outside but near contour (distance from contour <= -10)
             return True
-        fitted_ellipse = self.measurements().fittedEllipse
+        fitted_ellipse = self.measurements().fitted_ellipse
         return fitted_ellipse and fitted_ellipse.point_test(x, y)
 
 
@@ -61,8 +61,10 @@ class FittedEllipse:
 class ContourMeasurements:
     area = None
     centroid = None
-    len = None
-    fittedEllipse: FittedEllipse = None
+    contour_len = None
+    arc_len_closed = None
+    arc_len_open = None
+    fitted_ellipse: FittedEllipse = None
 
     def __init__(self, contour: Contour):
         super(ContourMeasurements, self).__init__()
@@ -70,15 +72,17 @@ class ContourMeasurements:
         self.area = cv2.contourArea(contour.points())
         self.centroid = centroid(contour.points())
         self.contour_len = contour.len()
+        self.arc_len_closed = cv2.arcLength(contour.points(), closed=True)
+        self.arc_len_open = cv2.arcLength(contour.points(), closed=False)
         if contour.len() >= 5:
-            self.fittedEllipse = FittedEllipse(contour)
+            self.fitted_ellipse = FittedEllipse(contour)
 
     def draw(self, im, color):
         # draw centroid
         if self.centroid:
             cv2.circle(im, intt(self.centroid), radius=2, color=color, thickness=-1)
-        if self.fittedEllipse:
-            self.fittedEllipse.draw(im, color)
+        if self.fitted_ellipse:
+            self.fitted_ellipse.draw(im, color)
 
 
 def centroid(points):

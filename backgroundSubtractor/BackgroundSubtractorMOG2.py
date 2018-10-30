@@ -1,13 +1,5 @@
 import numpy as np
 import cv2 as cv
-cap = cv.VideoCapture("d:\DiskE\Computer_Vision_Task\Video 2.mp4")
-fgbg = cv.createBackgroundSubtractorMOG2()
-while(1):
-    ret, frame = cap.read()
-    fgmask = fgbg.apply(frame)
-    cv.imshow('frame',fgmask)
-    k = cv.waitKey(30) & 0xff
-    if k == 27:
-        break
-cap.release()
-cv.destroyAllWindows()
+from bg_substractor_utils import do_substraction
+
+do_substraction("d:\DiskE\Computer_Vision_Task\Video_6.mp4", cv.createBackgroundSubtractorMOG2())

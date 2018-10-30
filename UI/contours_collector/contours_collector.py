@@ -1,4 +1,4 @@
-from atom.api import Atom, Int, Str, Typed, ContainerList, observe
+from atom.api import Atom, Int, Str, Typed, ContainerList, observe, Enum
 import cv2
 import numpy as np
 import utils
@@ -22,23 +22,31 @@ class ContoursCollector(Atom):
     contoursImage = Typed(np.ndarray)
     contoursList = ContoursList()
 
+    base_image_kind = Enum('edges', 'original', 'empty')
+
     def __init__(self, imageFile):
         self.image_rgb = cv2.cvtColor(cv2.imread(imageFile), cv2.COLOR_BGR2RGB)
         self.contoursList.observe('selected_items', self._draw_selected_contours)
 
-    def make_contours(self, autoCannyThresholds=False):
+    @observe('blur_kernel_size')
+    def make_contours(self, change=None):
         contours, image_edges = self.find_contours()
         self.image_edges = cv2.cvtColor(image_edges, cv2.COLOR_GRAY2RGB)
         self.contoursList.items = contours
         self.contoursList.toggle_all(True)
 
-
-
+    @observe('base_image_kind')
     def _draw_selected_contours(self, change):
         if self.image_edges is None:
             return
         # self.contoursImage = self.image_edges
-        self.contoursImage = draw_contours(self.contoursList.selected_items, self.image_edges.copy())
+        if self.base_image_kind == 'edges':
+            base_image = self.image_edges.copy()
+        elif self.base_image_kind == 'original':
+            base_image = self.image_rgb.copy()
+        else:
+            base_image = np.zeros_like(self.image_rgb)
+        self.contoursImage = draw_contours(self.contoursList.selected_items, base_image)
 
     def find_contours(self):
         image_rgb = self._blur_original_image()
@@ -73,16 +81,16 @@ class ContoursCollector(Atom):
     def _get_single_channel_images(self, rgb):
         # gray, R G B, A B
         gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
-        #lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB)
-        #hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+        # lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB)
+        # hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
         return [
             gray,
             # rgb[..., 0],
             # rgb[..., 1],
             # rgb[..., 2],
             # lab[..., 0],
-            #lab[..., 1],
-            #lab[..., 2],
+            # lab[..., 1],
+            # lab[..., 2],
             # hsv[..., 0],
             # hsv[..., 1],
             # hsv[..., 2],
