@@ -24,8 +24,13 @@ class ContoursCollector(Atom):
 
     base_image_kind = Enum('edges', 'original', 'empty')
 
-    def __init__(self, imageFile):
-        self.image_rgb = cv2.cvtColor(cv2.imread(imageFile), cv2.COLOR_BGR2RGB)
+    @classmethod
+    def from_file(cls, image_file):
+        image_rgb = cv2.cvtColor(cv2.imread(image_file), cv2.COLOR_BGR2RGB)
+        return cls(image_rgb)
+
+    def __init__(self, image_rgb):
+        self.image_rgb = image_rgb
         self.contoursList.observe('selected_items', self._draw_selected_contours)
 
     @observe('blur_kernel_size')
@@ -48,13 +53,13 @@ class ContoursCollector(Atom):
             base_image = np.zeros_like(self.image_rgb)
         self.contoursImage = draw_contours(self.contoursList.selected_items, base_image)
 
-    def find_contours(self):
+    def find_contours(self, method=cv2.CHAIN_APPROX_NONE):
         image_rgb = self._blur_original_image()
 
         channels = self._get_single_channel_images(image_rgb)
 
         edges = self._combined_edges(channels)
-        _, contours, hierarchy = cv2.findContours(edges, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)
+        _, contours, hierarchy = cv2.findContours(edges, mode=cv2.RETR_EXTERNAL, method=method)
 
         contours = [Contour(points) for points in contours]
         contours = [cont for cont in contours if self.area_filter_accept(cont)]

@@ -1,4 +1,4 @@
-from enaml.widgets.api import Menu, Action, Container, ScrollArea
+from enaml.widgets.api import Label, Container, ScrollArea
 from image_view_ex import ImageViewEx
 from enaml.qt.QtCore import Qt
 
@@ -9,12 +9,15 @@ enamldef ContoursImageView(Container):
     def image_mouse_press(event):
         if event.button() == Qt.LeftButton:
             contoursCollector.select_contours_at_point(event.x(), event.y())
-
-    ScrollArea:
+    constraints = []
+    ScrollArea: image_area:
         border = None
         Container:
             padding=0
             ImageViewEx:
                 image << contoursCollector.contoursImage
                 mouse_press_event => (event): image_mouse_press(event)
+                mouse_move_event => (e): status_lbl.text = str( (e.x(), e.y()))
+    Label: status_lbl:
+        text << '123'
 

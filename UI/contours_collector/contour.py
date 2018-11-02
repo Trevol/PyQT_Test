@@ -90,8 +90,8 @@ def centroid(points):
     m00 = m["m00"]
     if not m00:
         return None
-    cx = int(m["m10"] / m00)
-    cy = int(m["m01"] / m00)
+    cx = round(m["m10"] / m00)
+    cy = round(m["m01"] / m00)
     return cx, cy
 
 

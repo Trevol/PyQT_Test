@@ -28,7 +28,7 @@ enamldef ContoursSelector(TableView): table:
                 text << str(current_item.measurements().centroid)
             TableViewItem:
                 def get_text(current_item):
-                    ellipse = current_item.measurements().fittedEllipse
+                    ellipse = current_item.measurements().fitted_ellipse
                     return '{a:.1f} ({cx:.1f} {cy:.1f})'.format(a = ellipse.area, cx = ellipse.center[0], cy = ellipse.center[1])
                 text << get_text(current_item)
             TableViewItem:

@@ -17,7 +17,7 @@ frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_2770_184666.67_184.67.jpg"
 enamldef Main(Window): m:
     title = 'Contours'
 
-    attr contoursCollector = ContoursCollector(frame)
+    attr contoursCollector = ContoursCollector.from_file(frame)
 
     activated :: timedCall(100, contoursCollector.make_contours)
 

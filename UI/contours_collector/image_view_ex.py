@@ -33,6 +33,7 @@ class QImageViewEx(QImageView):
     def __init__(self, proxy, parent=None):
         super(QImageViewEx, self).__init__(parent)
         self.proxy = proxy
+        self.setMouseTracking(True)
 
 
 class QtImageViewEx(QtImageView):

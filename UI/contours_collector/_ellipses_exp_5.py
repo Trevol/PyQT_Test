@@ -1,3 +1,4 @@
+from UI.contours_collector.contours_collector import ContoursCollector
 from UI.contours_collector.contour import intt, box_to_ellipse
 import cv2
 import numpy as np
@@ -24,28 +25,22 @@ def normalize_contours(contours):
     return [normalize_contour(contour) for contour in contours]
 
 
-def polygon_polygon_test22(from_poly1, to_poly2, numberOfPoints=4):
-    pts = np.unique(from_poly1, axis=1)
-    # todo: may be taking by distance in array will be faster then random indexes
-    rnd_indexes = np.random.randint(0, pts.shape[0], size=numberOfPoints)
-    test_pts = pts[rnd_indexes]
-
-    distances = [abs(cv2.pointPolygonTest(to_poly2, tuple(pt), measureDist=True)) for pt in test_pts]
-    return sum(distances) / len(distances)
-
+def take_n_points(points, n):
+    pts_count = len(points)
+    if pts_count <= n:
+        return points
+    if n == 1:
+        return [points[round(pts_count/2)]]
+    step = (pts_count - 1) / (n - 1)
+    indexes = [round(i * step) for i in range(n)]
+    return points[indexes]
 
 def polygon_polygon_test(from_poly1, to_poly2, numberOfPoints=4):
     pts = np.unique(from_poly1, axis=1)
-    pts_count = len(pts)
-    if pts_count <= numberOfPoints:
-        test_pts = pts
-    else:
-        step = (pts_count-1) / (numberOfPoints - 1)
-        indexes = [round(i * step) for i in range(numberOfPoints)]
-        test_pts = pts[indexes]
-
+    test_pts = take_n_points(pts, numberOfPoints)
     distances = [abs(cv2.pointPolygonTest(to_poly2, tuple(pt), measureDist=True)) for pt in test_pts]
-    return sum(distances) / len(distances)
+    return sum(distances) / len(distances) #average distance
+
 
 def centroid(points):
     m = cv2.moments(points)
@@ -63,21 +58,20 @@ def main():
     img, contour_closed = create_test_image()
 
     _, contours, _ = cv2.findContours(img, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_TC89_KCOS)
+
     contours = normalize_contours(contours)
+    concatenated_contours = np.vstack(contours)
 
-    stacked = np.vstack(contours)
+    bgr = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    center, axes, angle = box_to_ellipse(*cv2.fitEllipseDirect(concatenated_contours))
+    cv2.ellipse(bgr, intt(center), intt(axes), angle, 0, 360, (255, 0, 0), 1)
 
-    center, axes, angle = box_to_ellipse(*cv2.fitEllipseDirect(stacked))
+    for c in contours:
+        point(bgr, centroid(c), (0, 255, 0))
+        center, axes, angle = box_to_ellipse(*cv2.fitEllipseDirect(c))
+        cv2.ellipse(bgr, intt(center), intt(axes), angle, 0, 360, (0, 255, 0), 1)
 
-    ellipse_poly = cv2.ellipse2Poly(intt(center), intt(axes), int(angle), 0, 360, 1)
-
-    # compute and show centroids of each contours, staked contour, fitted ellipse and ellipse_poly
-    for i, c in enumerate(contours):
-        #print('c', i, centroid(c))
-        point()
-
-    print('stacked', centroid(stacked))
-    print('fitted', center)
-    print('ellipse_poly', centroid(ellipse_poly))
+    cv2.imshow('dd', bgr)
+    cv2.waitKey()
 
 main()
