@@ -12,7 +12,10 @@ from enaml.qt.qt_application import timedCall
 enamldef Container_(Container):
     padding = 0
 
-frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_2770_184666.67_184.67.jpg"
+#frame = "D:/DiskE/Computer_Vision_Task/frames_6/f_2770_184666.67_184.67.jpg"
+frame = "D:/DiskE/Computer_Vision_Task/frames_2/f_1029_68600.00_68.60.jpg"
+#frame = "D:/DiskE/Computer_Vision_Task/frames_2/f_62_4133.33_4.13.jpg"
+
 
 enamldef Main(Window): m:
     title = 'Contours'

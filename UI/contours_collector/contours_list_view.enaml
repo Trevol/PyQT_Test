@@ -7,7 +7,7 @@ from contours_list import ContoursList
 enamldef ContoursSelector(TableView): table:
     visible_rows = 100
     selection_behavior = 'rows'
-    horizontal_headers = ['Length', 'Area', 'Centroid', 'Ellipse (Area, Center)', 'ArcLen (Closed, Open)']
+    horizontal_headers = ['Length', 'Area', 'Centroid', 'Ellipse (Area, Center, AspectRatio)', 'ArcLen']
 
     attr contoursList
 
@@ -29,13 +29,10 @@ enamldef ContoursSelector(TableView): table:
             TableViewItem:
                 def get_text(current_item):
                     ellipse = current_item.measurements().fitted_ellipse
-                    return '{a:.1f} ({cx:.1f} {cy:.1f})'.format(a = ellipse.area, cx = ellipse.center[0], cy = ellipse.center[1])
+                    return '{a:.1f} ({cx:.1f} {cy:.1f}) {ar:.2f}'.format(a = ellipse.area, cx = ellipse.center[0], cy = ellipse.center[1], ar = ellipse.aspect_ratio)
                 text << get_text(current_item)
             TableViewItem:
-                def get_text(current_item):
-                    m = current_item.measurements()
-                    return '{c:.1f}  {o:.1f}'.format(c = m.arc_len_closed, o = m.arc_len_open)
-                text << get_text(current_item)
+                text << str(current_item.measurements().arc_len)
 
 
 

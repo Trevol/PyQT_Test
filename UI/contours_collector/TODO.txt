@@ -1,5 +1,9 @@
-- draw measurements: centroid, orientation (moments), fitted ellipse (with center)
-    - draw ellipse center
++ draw measurements: centroid, orientation (moments), fitted ellipse (with center)
+    + draw ellipse center
+    - on/off for displaying measurements
+
+- utils.ellipseF2Poly* rewrite with numpy (or even Cyphon)
+    - https://habr.com/company/mailru/blog/242533/
 
 - ImageWidget improvements:
     - fit image to the widget size
@@ -21,3 +25,8 @@
 
 + implement contours selector using enamlx.TableView (measurements display in columns)
 + параметры в отдельное окно
+
+
+- по мере распознавания "однозначных" эллипсов - запоминать их в отдельный список (или просто заминать средние значения параметров: arcLen, area, axes, angle, углы между вершинами апроксимированного контура) - для дальнейшего распознавания "фрагментов"
+- если "быстрых" эллипсов не получается найти, то - переход на сбор эллипсов по фрагментам.
+  Если находятся эллипсы их "фрагментов" - не откалиброван процесс или сложные условия (освещение, положение или качество камеры??)
