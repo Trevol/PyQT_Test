@@ -1,6 +1,7 @@
 import cv2
 from contour import Contour
 from ellipse import Ellipse
+import utils
 
 
 class Calibrator:
@@ -27,14 +28,18 @@ class Calibrator:
         ar_min, ar_max = ar * .8, ar * 1.2
 
         # cv2.matchShapes(self.reference_ellipse.points(), polygon.points, 1, 0) <= 1.0
+        # utils.polygon_polygon_test(polygon.points, self.reference_ellipse.points(), -1) < 4.0
         return arc_len_min <= polygon.arc_len <= arc_len_max and \
                cv2.matchShapes(self.reference_ellipse.points(), polygon.points, 1, 0) <= 1.0 and \
                polygon.fit_ellipse and area_min <= polygon.fit_ellipse.area <= area_max and \
                ar_min <= polygon.fit_ellipse.aspect_ratio <= ar_max
 
+
+
     @property
     def calibrated(self):
         return len(self.reference_ellipses) > 0
+
 
     @staticmethod
     def detect_reference_ellipses(bgr):
@@ -49,6 +54,7 @@ class Calibrator:
         # todo: assemble from parts using collected strong ellipses
         return strong_ellipses
 
+
     @staticmethod
     def extract_strong_ellipses(contours):
         strong = []
@@ -60,12 +66,14 @@ class Calibrator:
                 not_ellipses.append(c)
         return strong, not_ellipses
 
+
     @staticmethod
     def skip_small_ellipses(ellipses):
         # остаются только близкие к наибольшему (по площади)
         max_ellipse = Calibrator.ellipse_area(max(ellipses, key=Calibrator.ellipse_area))
         area_threshold = 0.7 * max_ellipse
         return [el for el in ellipses if Calibrator.ellipse_area(el) >= area_threshold]
+
 
     @staticmethod
     def ellipse_area(e):

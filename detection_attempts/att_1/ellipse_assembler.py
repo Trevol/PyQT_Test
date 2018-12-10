@@ -24,7 +24,7 @@ class EllipseAssembler:
         while any(src_parts):
             part = src_parts.pop(0)
             # print(self.dist_to_fit_ellipse(part))
-            # __VIS__(bgr, part, None, True)
+            # __VIS__(bgr, part, None, False)
             if self.polygon_is_complete_and_close_to_ref_ellipse(part):
                 dst_ellipses.append(part)
                 continue
@@ -32,7 +32,7 @@ class EllipseAssembler:
             while True:
                 part, next_part, next_part_index = self.find_next_ellipse_part(part, src_parts, bgr)
                 # print(self.dist_to_fit_ellipse(part))
-                # __VIS__(bgr, part, next_part, True)
+                # __VIS__(bgr, part, next_part, False)
                 if next_part is None:  # если "след." составляющая не найдена
                     # проверяем - является ли накопленный полигон эллипсом
                     if self.__calibrator.is_close_to_ref_ellipse(part):
