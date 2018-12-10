@@ -80,11 +80,7 @@ def compute_angles_vectorized(pts):
     prev_vecs = pts - prev_pts
     next_vecs = next_pts - pts
 
-    try:
-        prev_vec_x = prev_vecs[:, 0]
-    except:
-        raise
-
+    prev_vec_x = prev_vecs[:, 0]
     prev_vec_y = prev_vecs[:, 1]
 
     next_vec_x = next_vecs[:, 0]

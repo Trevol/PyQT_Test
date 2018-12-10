@@ -12,6 +12,7 @@ class Contour:
         bgr = cv2.GaussianBlur(bgr, (3, 3), 0, dst=bgr)
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(gray, 0, 255, edges=gray)
+
         return cls.find_in_edges(edges)
 
     @classmethod

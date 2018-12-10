@@ -5,7 +5,7 @@ from contour_visualize import draw_contours
 import geometry_utils as geometry
 import utils
 from detection_attempts.att_1.detector import Detector
-
+from detection_attempts.VideoCapture import VideoCapture
 
 def test_image():
     im = np.zeros((300, 300), dtype=np.uint8)
@@ -105,38 +105,26 @@ def split_2(contour):
 
 
 def main():
-    edges = test_image()
+    source = 'd:/DiskE/Computer_Vision_Task/Video_2.mp4'
+    video = VideoCapture(source)
+    image = video.read_at_pos(225)
 
-    contour = Contour.find_in_edges(edges)[0]
+    bgr = cv2.GaussianBlur(image, (3, 3), 0, dst=image)
+    gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, 0, 255, edges=gray)
+
+    # edges = test_image()
 
     im = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
     # draw_contours([contour], im, color=(255, 0, 0), draw_measurements=False)
 
-    parts = split_1(contour)
-    # for t in tails:
-    #     cv2.circle(im, tuple(t), 2, (0, 0, 255), -1)
+    corners = cv2.goodFeaturesToTrack(edges, 500, 0.01, 10)
 
-    for i, p in enumerate(parts):
-        im2 = im.copy()
-        cv2.polylines(im2, [p], False, (0, 255, 0), 1)
-        cv2.imshow('im', im2)
-        cv2.waitKey()
+    for x, y in corners[:, 0]:
+        cv2.circle(im, (int(x), int(y)), 1, (0, 255, 0), thickness=-1)
 
-    # cv2.imshow('im', im)
-    # cv2.waitKey()
-    # TODO: тестировать на эллипсе
-
-
-def main():
-    edges = test_image()
-    contour = Contour.find_in_edges(edges)[0]
-
-    ppp = split_1(contour)
-    print(len(ppp))
-
-    print(utils.timeit(fn=lambda: split_1(contour), iterations=10000))
-    # print(utils.timeit(fn=lambda: split_2(contour), iterations=10000))
-
+    cv2.imshow('im', im)
+    cv2.waitKey()
     # TODO: тестировать на эллипсе
 
 

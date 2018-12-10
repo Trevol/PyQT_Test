@@ -2,6 +2,7 @@ import cv2
 
 from detection_attempts.att_1.contour import Contour
 from detection_attempts.att_1.polygon import Polygon
+from detection_attempts.att_1.ellipse_assembler import EllipseAssembler
 import geometry_utils as geometry
 import numpy as np
 import utils
@@ -12,67 +13,48 @@ class Detector:
         if not calibrator.calibrated:
             raise Exception('not calibrator.calibrated')
         self.__calibrator = calibrator
-        self.__ref_ellipse = self.__calibrator.reference_ellipses[0]
+        self.__ellipse_assembler = EllipseAssembler(calibrator)
+
+    def __VIS_CONTOURS(self, bgr, contours):
+        for c in contours:
+            print(c.measurements().approx_points.size, c.len(), self.__calibrator.reference_ellipse.len() // 5)
+            visualize_contours_parts(bgr, c, [])
 
     def detect(self, bgr):
         contours = Contour.find(bgr)
 
         # skip short and straight (approx pts < 3) contours
-        min_len = self.__ref_ellipse.len() // 3
+        min_len = self.__calibrator.reference_ellipse.len() // 5
         contours = [c for c in contours if c.measurements().approx_points.size != 0 and c.len() > min_len]
 
         all_parts = []
         for c in contours:
             parts = self.split(c)  # TODO: сразу фильтровать??
+            # visualize_contours_parts(bgr, c, parts)
             all_parts.extend(parts)
 
         # убираем: слишком длинные и слишком короткие контуры
-        arc_len_max = self.__ref_ellipse.measurements().arc_len * 1.2
-        arc_len_min = self.__ref_ellipse.measurements().arc_len * 0.12
+        arc_len_max = self.__calibrator.reference_ellipse.measurements().arc_len * 1.2
+        arc_len_min = self.__calibrator.reference_ellipse.measurements().arc_len * 0.12
         all_parts = [p for p in all_parts if arc_len_min < p.arc_len < arc_len_max]
 
-        all_parts = self.__detect_ellipses(all_parts)
+        ellipses = self.__detect_ellipses(all_parts, bgr)
 
         # убираем: не "фитятся" в эллипс
-        return all_parts
-
-    def __detect_ellipses(self, parts):
-        # 1: part is ellipse: ref_ellipse.measurements
-        ellipses = []
-        for i, p in enumerate(parts):
-            if self.is_close_to_ref_ellipse(p):
-                ellipses.append(p.fit_ellipse)
-                parts.pop(i)
-
-        # self.__assemble_ellipses(parts, ellipses)
-
         return ellipses
 
-    def __assemble_ellipses(self, parts, ellipses):
-        #
-        for i, p_i in enumerate(parts):
-            for j in range(i + 1, len(parts)):
-                if j >= len(parts):
-                    break
-                p_j = parts[j]
-                p = p_i + p_j
-                if self.is_close_to_ref_ellipse(p):
-                    ellipses.append(p.fit_ellipse)
-                    # parts.remove(p_i)
-                    parts.remove(p_j)
+    def __detect_ellipses(self, parts, bgr):
+        ellipses = self.detect_complete_ellipses(parts)
+        self.__ellipse_assembler.assemble_ellipses(parts, ellipses, bgr)
+        return ellipses
 
-    def is_close_to_ref_ellipse(self, polygon):
-        ref_area = self.__ref_ellipse.measurements().fitted_ellipse.area
-        area_min, area_max = ref_area * 0.8, ref_area * 1.2
-
-        ref_arc_len = self.__ref_ellipse.measurements().arc_len
-        arc_len_min, arc_len_max = ref_arc_len * 0.8, ref_arc_len * 1.2
-
-        ar = self.__ref_ellipse.measurements().fitted_ellipse.aspect_ratio
-        ar_min, ar_max = ar * .8, ar * 1.2
-        return arc_len_min <= polygon.arc_len <= arc_len_max and \
-               polygon.fit_ellipse and area_min <= polygon.fit_ellipse.area <= area_max and \
-               ar_min <= polygon.fit_ellipse.aspect_ratio <= ar_max
+    def detect_complete_ellipses(self, parts):
+        ellipses = []
+        for i, p in enumerate(parts):
+            if self.__calibrator.is_close_to_ref_ellipse(p):
+                ellipses.append(p)
+                parts.pop(i)
+        return ellipses
 
     def split(self, contour):
         # сразу сравнивать с эталонным элипсом???
@@ -117,29 +99,34 @@ class Detector:
 
         return unique_parts
 
-    @staticmethod
-    def __visualize_contours_parts(bgr, contour, parts):
-        cv2.namedWindow('debug', cv2.WINDOW_NORMAL)
 
+def visualize_contours_parts(bgr, contour, parts):
+    cv2.namedWindow('debug', cv2.WINDOW_NORMAL)
+
+    # im = bgr.copy()
+    im = bgr
+    cv2.drawContours(im, [contour.points()], -1, (0, 255, 0), 1)
+    print(contour.len(), len(parts))
+    cv2.imshow('debug', im)
+    cv2.waitKey()
+
+    for p in parts:
         # im = bgr.copy()
-        im = bgr
-        cv2.drawContours(im, [contour.points()], -1, (0, 255, 0), 1)
-        print(contour.len(), len(parts))
+        cv2.polylines(im, [p.points], False, utils.random_color(), 2)
         cv2.imshow('debug', im)
         cv2.waitKey()
 
-        for p in parts:
-            # im = bgr.copy()
-            cv2.polylines(im, [p], False, utils.random_color(), 2)
-            cv2.imshow('debug', im)
-            cv2.waitKey()
+    cv2.drawContours(im, [contour.points()], -1, (255, 255, 255), 1)
+    for p in parts:
+        cv2.polylines(im, [p.points], False, (255, 255, 255), 2)
 
-        cv2.drawContours(im, [contour.points()], -1, (255, 255, 255), 1)
-        for p in parts:
-            cv2.polylines(im, [p], False, (255, 255, 255), 2)
+    while cv2.waitKey() != 27:
+        pass
 
-        while cv2.waitKey() != 27:
-            pass
+
+def visualize_parts(bgr, parts):
+    cv2.polylines(bgr, [p.points for p in parts], False, (0, 0, 0), 2)
+    cv2.waitKey()
 
 
 def print_parts(parts):

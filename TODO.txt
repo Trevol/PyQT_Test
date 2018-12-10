@@ -1,0 +1,42 @@
+- может быть делать кадру "perspective transform" (или "inverse perspective transform") - что бы эллипсы превращались в окружности??
+- spatial indexing:
+    - https://www.slideshare.net/kylinfish/tpr-star-tree-36153522   Tpr star tree
+    - https://www.semanticscholar.org/paper/The-TPR*-Tree%3A-An-Optimized-Spatio-Temporal-Access-Tao-Papadias/e4617874f90b6968fee870d1c67f80e1e78611a6
+    - https://pdfs.semanticscholar.org/e461/7874f90b6968fee870d1c67f80e1e78611a6.pdf The TPR*-Tree: An Optimized Spatio-Temporal Access Method for Predictive Queries
+    - https://www.semanticscholar.org/paper/STR%3A-A-Simple-and-Efficient-Algorithm-for-R-Tree-Leutenegger-Edgington/3c0d3b560cc97ba60441fd7416c3ddf9007e299d STR: A Simple and Efficient Algorithm for R-Tree Packing
+    - https://dl.acm.org/citation.cfm?id=1315519  The TPR*-tree: an optimized spatio-temporal access method for predictive queries
+    - search "TPR-tree"
+    - search "rtree python"
+    - https://github.com/Toblerity/rtree  Rtree: spatial index for Python GIS
+    - http://toblerity.org/rtree/
+    - https://geoffboeing.com/2016/10/r-tree-spatial-index-python/ R-tree Spatial Indexing with Python
+    - https://en.wikipedia.org/wiki/R-tree
+    - https://stackoverflow.com/questions/2709339/c-r-tree-implementation-wanted
+    - http://www.virtualroadside.com/blog/index.php/2008/10/04/r-tree-implementation-for-cpp/
+    - https://github.com/nushoin/RTree
+    - https://www.boost.org/doc/libs/1_68_0/libs/geometry/doc/html/geometry/spatial_indexes.html
+    - https://github.com/libspatialindex/libspatialindex C++ implementation of R*-tree, an MVR-tree and a TPR-tree with C API
+    - http://libspatialindex.github.com
+    - https://github.com/virtuald/r-star-tree  R* Tree for C++
+    - http://www.virtualroadside.com/blog/index.php/2008/10/04/r-tree-implementation-for-cpp/
+    - http://en.wikipedia.org/wiki/R*_tree
+    - http://dbs.mathematik.uni-marburg.de/publications/myPapers/1990/BKSS90.pdf The R*-tree: An Efficient and Robust Access Method for Points and Rectangles+
+- https://en.wikipedia.org/wiki/Nearest_neighbor_search
+
+- auto thresholding for edge detection (для уточнения поиска)
+   - How do I set the upper and lower threshold in canny edge detection?
+   - https://www.quora.com/How-do-I-set-the-upper-and-lower-threshold-in-canny-edge-detection#
+        - посмотреть ответы - там толковый советы
+            - You can find the mean of the grayscale values and keep the lower and higher thresholds as ±25% of the mean.
+            - !!! http://www.kerrywong.com/2009/05/07/canny-edge-detection-auto-thresholding/
+            - There is another paper “CannyLines”, here they have found the lower and higher thresholds using Helmholtz principle
+                    http://cvrs.whu.edu.cn/projects/cannyLines/
+            - 1) Perform OTSU segmentation on your image. 2) upperthresh=OTSU(inputgrayscaleimage) 3) lowerthresh=0.5∗upperthresh 4) Choose a suitable scaling factor if .5 doesn’t work for you.
+   - https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
+
+
+
+
+- по мере распознавания "однозначных" эллипсов - запоминать их в отдельный список (или просто заминать средние значения параметров: arcLen, area, axes, angle, углы между вершинами апроксимированного контура) - для дальнейшего распознавания "фрагментов"
+- если "быстрых" эллипсов не получается найти, то - переход на сбор эллипсов по фрагментам.
+  Если находятся эллипсы их "фрагментов" - не откалиброван процесс или сложные условия (освещение, положение или качество камеры??)

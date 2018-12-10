@@ -1,3 +1,4 @@
+import cv2
 from contour import Contour
 from ellipse import Ellipse
 
@@ -10,6 +11,26 @@ class Calibrator:
 
     def __init__(self, reference_ellipses):
         self.reference_ellipses = reference_ellipses
+        self.reference_ellipse = reference_ellipses[0]
+
+    def is_close_to_ref_ellipse(self, polygon):
+        ref_area = self.reference_ellipse.measurements().fitted_ellipse.area
+        area_min, area_max = ref_area * 0.5, ref_area * 1.2
+
+        ref_arc_len = self.reference_ellipse.measurements().arc_len
+        # TODO: если контур собран не полностью (что-то его закрывает) - то сущ. ограничения мешают его распознать
+        #  Надо бы пропорционально "заполненности" контуров проверять на соответствие - cv2.matchShape???
+
+        arc_len_min, arc_len_max = ref_arc_len * 0.5, ref_arc_len * 1.3
+
+        ar = self.reference_ellipse.measurements().fitted_ellipse.aspect_ratio
+        ar_min, ar_max = ar * .8, ar * 1.2
+
+        # cv2.matchShapes(self.reference_ellipse.points(), polygon.points, 1, 0) <= 1.0
+        return arc_len_min <= polygon.arc_len <= arc_len_max and \
+               cv2.matchShapes(self.reference_ellipse.points(), polygon.points, 1, 0) <= 1.0 and \
+               polygon.fit_ellipse and area_min <= polygon.fit_ellipse.area <= area_max and \
+               ar_min <= polygon.fit_ellipse.aspect_ratio <= ar_max
 
     @property
     def calibrated(self):

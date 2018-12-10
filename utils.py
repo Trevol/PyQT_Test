@@ -1,3 +1,4 @@
+import os
 from threading import Timer
 import colorsys
 import math
@@ -40,6 +41,18 @@ def debounce(wait):
     return decorator
 
 
+def file_dir(file=None):
+    file = file if file else __file__
+    return os.path.dirname(os.path.realpath(file))
+
+
+def save_images(video, dir, *images):
+    for num in images:
+        frame = video.read_at_pos(num)
+        name = os.path.join(dir, f'{num}.png')
+        cv2.imwrite(name, frame)
+
+
 def first_or_default(iterable, criteria):
     for i, item in enumerate(iterable):
         if criteria(item):
@@ -48,7 +61,7 @@ def first_or_default(iterable, criteria):
 
 
 def put_frame_pos(frame, pos):
-    cv2.putText(frame, str(pos), (5, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
+    cv2.putText(frame, str(pos), (5, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
 
 def imshow(flag=cv2.WINDOW_NORMAL, **name_img):
