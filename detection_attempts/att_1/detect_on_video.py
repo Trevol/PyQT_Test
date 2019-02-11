@@ -294,7 +294,7 @@ def main_6_video():
     detector = Detector(calibrator)
     wnd = CvNamedWindow('detection', cv2.WINDOW_NORMAL)
 
-    video.set_pos(945)
+    video.set_pos(961)
     ellipses_count = 0
     for frame in video.frames():
         pos = video.frame_pos()

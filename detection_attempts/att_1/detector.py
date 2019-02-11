@@ -155,7 +155,9 @@ class Detector:
         # убираем: слишком длинные и слишком короткие контуры
         arc_len_max = self.__calibrator.reference_ellipse.contour.measurements().arc_len * 1.2
         arc_len_min = self.__calibrator.reference_ellipse.contour.measurements().arc_len * 0.1
-        return [p for p in polygons if p.len < 3 or arc_len_min < p.arc_len < arc_len_max]
+        def is_valid(poly):
+            return poly.len > 2 and arc_len_min < poly.arc_len < arc_len_max and poly.fit_ellipse and poly.fit_ellipse.valid
+        return [p for p in polygons if is_valid(p)]
 
     def __debug_color_filtering(self, ellipses, frame):
         # return ellipses

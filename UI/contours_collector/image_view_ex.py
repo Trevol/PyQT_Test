@@ -96,8 +96,9 @@ QT_FACTORIES.update({
 def _get_pixmap(image):
     if image is None:
         return None
-    w, h, format = _get_image_size_n_format(image)
-    qimage = QImage(image.data, w, h, format)
+    # w, h, format = _get_image_size_n_format(image)
+    # qimage = QImage(image.data, w, h, image.strides[0], format)
+    qimage = ndarray_to_qimage(image)
     return QPixmap.fromImage(qimage)
 
 

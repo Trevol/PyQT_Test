@@ -104,12 +104,6 @@ class Polygon:
 
             self.center, self.axes, self.angle = utils.box_to_ellipse(*fit_ellipse)
 
-            # DEBUG
-            if math.isnan(self.axes[0]) or math.isinf(self.axes[0]) or math.isnan(self.axes[1]) or math.isinf(
-                    self.axes[1]):
-                i = 123
-                self.DEBUG.show_points(points)
-
             self.axis_a, self.axis_b = self.axes
             self.area = self.axis_a * self.axis_b * np.pi
             self.aspect_ratio = min(self.axes[0], self.axes[1]) / max(self.axes[0], self.axes[1])
@@ -155,9 +149,5 @@ class Polygon:
         @property
         def poly(self):
             if self.__poly is None:
-                # DEBUG
-                try:
-                    self.__poly = utils.ellipseF2Poly(self.center, self.axes, self.angle, 0, 360, 1)
-                except:
-                    raise
+                self.__poly = utils.ellipseF2Poly(self.center, self.axes, self.angle, 0, 360, 1)
             return self.__poly

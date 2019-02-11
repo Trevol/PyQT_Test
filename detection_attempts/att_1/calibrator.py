@@ -52,9 +52,12 @@ class Calibrator:
 
         # cv2.matchShapes(self.reference_ellipse.contour.points(), polygon.points, 1, 0) <= 1.0
         # utils.polygon_polygon_test(polygon.points, self.reference_ellipse.contour.points(), -1) < 4.0
-        return cv2.matchShapes(self.reference_ellipse.contour.points(), polygon.points, 1, 0) <= 1.0 and \
-               polygon.fit_ellipse and area_min <= polygon.fit_ellipse.area <= area_max and \
-               ar_min <= polygon.fit_ellipse.aspect_ratio <= ar_max
+        try:
+            return cv2.matchShapes(self.reference_ellipse.contour.points(), polygon.points, 1, 0) <= 1.0 and \
+                   polygon.fit_ellipse and area_min <= polygon.fit_ellipse.area <= area_max and \
+                   ar_min <= polygon.fit_ellipse.aspect_ratio <= ar_max
+        except:
+            raise
 
         return arc_len_min <= polygon.arc_len <= arc_len_max and \
                cv2.matchShapes(self.reference_ellipse.contour.points(), polygon.points, 1, 0) <= 1.0 and \
