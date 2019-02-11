@@ -340,7 +340,8 @@ def put_ellipses_count(frame, ellipses_count):
     cv2.putText(frame, f'Num of contacts: {ellipses_count}', (5, 95), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
 
-def main_6_video_write_results():
+def main_6_video_write_results(max_frames):
+    max_frames = max_frames or -1
     video, calibration_image = get_capture_and_calibration_image_video6()
     print(f'FRAME COUNT: {video.frame_count()}')
     calibrator = Calibrator.calibrate(calibration_image, 2)
@@ -350,7 +351,7 @@ def main_6_video_write_results():
         return
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')  # fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
-    out = cv2.VideoWriter('d:/DiskE/Computer_Vision_Task/Video_6_out.avi', fourcc, video.fps(), video.resolution())
+    out = cv2.VideoWriter('d:/DiskE/Computer_Vision_Task/Video_6_out_full.avi', fourcc, video.fps(), video.resolution())
     detector = Detector(calibrator)
 
     import time
@@ -374,7 +375,7 @@ def main_6_video_write_results():
         if pos % 100 == 0:
             secs_per_frame = round((time.time() - t0) / pos, 2)
             print(f'Frames processed: {pos}. Secs per frame: {secs_per_frame}')
-        if pos > 4000:
+        if max_frames > 0 and pos > max_frames:
             break
 
     print('Done!', time.time() - t0)
@@ -390,6 +391,6 @@ if __name__ == '__main__':
     # main_2_video()
     # main_2_video_write_results()
 
-    main_6_video()
-    # main_6_video_write_results()
+    # main_6_video()
+    main_6_video_write_results(max_frames=None)
     # main_6()
