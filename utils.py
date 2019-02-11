@@ -61,7 +61,7 @@ def first_or_default(iterable, criteria):
 
 
 def put_frame_pos(frame, pos):
-    cv2.putText(frame, str(pos), (5, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    cv2.putText(frame, f'Frame: {pos}', (5, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
 
 def imshow(flag=cv2.WINDOW_NORMAL, **name_img):

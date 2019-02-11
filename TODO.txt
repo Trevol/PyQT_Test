@@ -1,3 +1,29 @@
+Smooth contour:
+- http://www.morethantechnical.com/2012/12/07/resampling-smoothing-and-interest-points-of-curves-via-css-in-opencv-w-code/
+- https://www.google.com/search?q=opencv+smooth+contour&client=firefox-b-d&tbm=isch&source=iu&ictx=1&fir=ztzgm8649FAVrM%253A%252C9NXn6KNuPh6PTM%252C_&usg=AI4_-kTNeS0xbNoIb7-9957kwzekKXJVAg&sa=X&ved=2ahUKEwj_soHsw6ngAhXFDSwKHSOvBSoQ9QEwC3oECAUQBA&biw=1920&bih=954#imgdii=cILfCORXQnkIpM:&imgrc=ztzgm8649FAVrM:
+- https://www.google.com/search?client=firefox-b-d&q=opencv+smooth+contour
+- https://stackoverflow.com/questions/38480983/smoothing-rough-edges-contour-opencv
+- https://stackoverflow.com/questions/1204553/are-there-any-good-libraries-for-solving-cubic-splines-in-c
+- https://stackoverflow.com/questions/22898881/opencv-fit-a-curve-to-a-set-of-points
+- https://www.codeproject.com/Articles/30838/Overhauser-Catmull-Rom-Splines-for-Camera-Animatio
+- https://agniva.me/scipy/2016/10/25/contour-smoothing.html
+- https://stackoverflow.com/questions/31464345/fitting-a-closed-curve-to-a-set-of-points/31466013#31466013
+
+!!
+https://www.geometrictools.com/Books/Books.html
+
+- class WorkingArea
+    - update_objects(polygons)
+    - draw (image)
+
+
+- работа с цветом
+    https://medium.com/datadriveninvestor/skin-segmentation-and-dominant-tone-color-extraction-fe158d24badf
+    https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/
+
+Numpy:
+- https://habr.com/ru/post/413381/   https://habr.com/ru/post/352678/
+
 - может быть делать кадру "perspective transform" (или "inverse perspective transform") - что бы эллипсы превращались в окружности??
 - spatial indexing:
     - https://www.slideshare.net/kylinfish/tpr-star-tree-36153522   Tpr star tree
@@ -24,8 +50,7 @@
 - https://en.wikipedia.org/wiki/Nearest_neighbor_search
 
 - auto thresholding for edge detection (для уточнения поиска)
-   - How do I set the upper and lower threshold in canny edge detection?
-   - https://www.quora.com/How-do-I-set-the-upper-and-lower-threshold-in-canny-edge-detection#
+   - https://www.quora.com/How-do-I-set-the-upper-and-lower-threshold-in-canny-edge-detection   #How do I set the upper and lower threshold in canny edge detection?
         - посмотреть ответы - там толковый советы
             - You can find the mean of the grayscale values and keep the lower and higher thresholds as ±25% of the mean.
             - !!! http://www.kerrywong.com/2009/05/07/canny-edge-detection-auto-thresholding/

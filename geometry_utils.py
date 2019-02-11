@@ -73,7 +73,8 @@ def enumerate_angles(contour):
 
 
 def compute_angles_vectorized(pts):
-    pts = pts[:, 0]  # [ [[x, y]]...[[x, y]] ] -> [ [x,y]...[x,y] ]
+    if len(pts.shape) == 3:
+        pts = pts[:, 0]  # [ [[x, y]]...[[x, y]] ] -> [ [x,y]...[x,y] ]
     next_pts = np.roll(pts, -1, axis=0)
     prev_pts = np.roll(pts, 1, axis=0)
 
@@ -99,3 +100,47 @@ def compute_angles_vectorized(pts):
 
 def vector_norm(vector_x, vector_y):
     return np.sqrt(vector_x * vector_x + vector_y * vector_y)
+
+
+def squared_color_distance(c1, c2):
+    vec = np.subtract(c1, c2, dtype=np.float32)
+    return vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]
+
+
+def squared_color_distances(color, colors):
+    vectors = np.subtract(colors, color, dtype=np.float32)
+    v0 = vectors[:, 0]
+    v1 = vectors[:, 1]
+    v2 = vectors[:, 2]
+    squared_distances = v0 * v0 + v1 * v1 + v2 * v2
+    return squared_distances
+
+
+def int32(a):
+    return a.round(0).astype(np.int32)
+
+
+def concat(*args):
+    return np.concatenate(args)
+
+
+def ellipse_main_axes_pts(center, axes, angle):
+    x0, y0 = center
+    axis_a, axis_b = np.array(axes)  # / 2
+
+    if angle >= 90:
+        axis_a, axis_b, angle = axis_b, axis_a, angle - 90
+    # TODO: rewrite with matrix multiplication (one or two operation(s))
+    radians = np.radians(angle)
+    cos = np.cos(radians)
+    sin = np.sin(radians)
+    axis_a_range = np.arange(-axis_a, axis_a, 1)
+    axis_b_range = np.arange(-axis_b, axis_b, 1)
+
+    axis_a_x_points = x0 + axis_a_range * cos
+    axis_a_y_points = y0 + axis_a_range * sin
+
+    axis_b_x_points = x0 - axis_b_range * sin
+    axis_b_y_points = y0 + axis_b_range * cos
+
+    return int32(concat(axis_a_x_points, axis_b_x_points)), int32(concat(axis_a_y_points, axis_b_y_points))

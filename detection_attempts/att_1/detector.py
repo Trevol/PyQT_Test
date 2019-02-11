@@ -1,11 +1,118 @@
 import cv2
 
 from detection_attempts.att_1.contour import Contour
-from detection_attempts.att_1.polygon import Polygon
+from detection_attempts.att_1.mean_color_filter import MeanColorFilter, ellipse_axes_mean_color
 from detection_attempts.att_1.ellipse_assembler import EllipseAssembler
+from detection_attempts.att_1.contour_splitter import ContourSplitter
+from detection_attempts.att_1.cv_named_window import CvNamedWindow
 import geometry_utils as geometry
 import numpy as np
 import utils
+
+
+class DEBUG:
+    def VIS_CONTOURS(self, bgr, contours):
+        for c in contours:
+            print(c.measurements().approx_points.size, c.len(), self.__calibrator.reference_ellipse.contour.len() // 5)
+            VISUALIZE_CONTOURS_PARTS(bgr, c, [])
+
+    @staticmethod
+    def separator(img):
+        sh = list(img.shape)
+        sh[1] = 5  # width
+        return np.full(sh, 127, np.uint8)
+
+    @staticmethod
+    def VIS_ALL_CONTOURS(img, contours):
+        if img.shape[0] > 300 or img.shape[1] > 300:
+            return
+
+        print('contours LEN:', len(contours))
+        if len(contours) == 0:
+            return
+        separator = DEBUG.separator(img)
+        images = []
+        tails_colors = ((0, 127, 0), (0, 255, 0))
+        points_color = (0, 0, 0)
+
+        im = DEBUG.__draw_contours(img.copy(), contours, (0, 255, 0), 1, tails_colors, points_color)
+        images.extend([im, separator])
+
+        if len(contours) > 1:
+            for c in contours:
+                im = DEBUG.__draw_contours(img.copy(), [c], (0, 255, 0), 1, tails_colors, points_color)
+                images.extend([im, separator])
+                print(f'VIS_ALL_CONTOURS: contour len {c.len()}')
+
+        wnd = CvNamedWindow('contours', cv2.WINDOW_NORMAL)
+        wnd.imshow(np.hstack(images))
+        cv2.waitKey()
+        wnd.destroy()
+
+    @staticmethod
+    def VIS_POLYGONS(img, polygons):
+        if img.shape[0] > 300 or img.shape[1] > 300:
+            return
+        print('VIS_POLYGONS: polygons count:', len(polygons), [p.len for p in polygons])
+        if len(polygons) == 0:
+            return
+
+        tails_colors = ((0, 127, 0), (0, 255, 0))
+        points_color = (0, 0, 0)
+        separator = DEBUG.separator(img)
+        images = []
+
+        im = DEBUG.__draw_polygons(img.copy(), polygons, (0, 255, 0), 1, tails_colors, points_color)
+        images.extend([im, separator])
+
+        if len(polygons) > 1:
+            for p in polygons:
+                im = DEBUG.__draw_polygons(img.copy(), [p], (0, 255, 0), 1, tails_colors, points_color)
+                images.extend([im, separator])
+
+        wnd = CvNamedWindow('polygons', cv2.WINDOW_NORMAL)
+        wnd.imshow(np.hstack(images))
+        cv2.waitKey()
+        wnd.destroy()
+
+    @staticmethod
+    def __draw_polygons(img, polygons, color, thickness, tails_colors, points_color):
+        cv2.polylines(img, [p.points for p in polygons], False, color, thickness)
+        if tails_colors:
+            first_color, last_color = tails_colors
+            for p in polygons:
+                DEBUG.__put_point(img, p.first_pt, first_color, r=thickness+3)
+                DEBUG.__put_point(img, p.last_pt, last_color, r=thickness+2)
+        if points_color:
+            for p in polygons:
+                for pt in p.points:
+                    DEBUG.__put_point(img, pt[0], points_color, r=thickness)
+        return img
+
+    @staticmethod
+    def __draw_contours(img, contours, color, thickness, tails_colors, points_color):
+        cv2.drawContours(img, [c.points() for c in contours], -1, color, thickness)
+
+        if tails_colors:
+            first_color, last_color = tails_colors
+            for c in contours:
+                approx_pts = c.measurements().approx_points
+                DEBUG.__put_point(img, approx_pts[0, 0], first_color, r=thickness+3)
+                DEBUG.__put_point(img, approx_pts[-1, 0], last_color, r=thickness+2)
+        if points_color:
+            for c in contours:
+                approx_pts = c.measurements().approx_points
+                for pt in approx_pts:
+                    DEBUG.__put_point(img, pt[0], points_color, r=0)
+        return img
+
+    @staticmethod
+    def __put_point(img, pt, color, r):
+        x, y = pt
+        if r == 0:
+            img[y, x] = color
+        else:
+            img[y - r:y + r, x - r:x + r] = color
 
 
 class Detector:
@@ -14,93 +121,72 @@ class Detector:
             raise Exception('not calibrator.calibrated')
         self.__calibrator = calibrator
         self.__ellipse_assembler = EllipseAssembler(calibrator)
-
-    def __VIS_CONTOURS(self, bgr, contours):
-        for c in contours:
-            print(c.measurements().approx_points.size, c.len(), self.__calibrator.reference_ellipse.len() // 5)
-            visualize_contours_parts(bgr, c, [])
+        self.__mean_color_filter = MeanColorFilter(calibrator)
 
     def detect(self, bgr):
-        contours = Contour.find(bgr)
-
+        contours = Contour.find(bgr.copy())
+        # DEBUG.VIS_ALL_CONTOURS(bgr, contours)
         # skip short and straight (approx pts < 3) contours
-        min_len = self.__calibrator.reference_ellipse.len() // 5
+        min_len = self.__calibrator.reference_ellipse.contour.len() // 5
         contours = [c for c in contours if c.measurements().approx_points.size != 0 and c.len() > min_len]
 
         all_parts = []
         for c in contours:
-            parts = self.split(c)  # TODO: сразу фильтровать??
-            # visualize_contours_parts(bgr, c, parts)
+            DEBUG.VIS_ALL_CONTOURS(bgr, [c])
+            parts = ContourSplitter.split_contour(c, self.__calibrator.max_contour_angle + 5)
+            DEBUG.VIS_POLYGONS(bgr, parts)
             all_parts.extend(parts)
 
+        all_parts = self.clean_polygons(all_parts)
+
+        # DEBUG
+        # all_parts = [p for p in all_parts if p.len in (11, 3)]
+        # all_parts = [p for p in all_parts if p.within_rectangle((717 - 710, 436 - 370), (778 - 710, 501 - 370))]
+        # DEBUG.VIS_POLYGONS(bgr, all_parts)
+
+        all_parts_ = list(all_parts)
+
+        ellipses = self.__ellipse_assembler.assemble_ellipses(all_parts, bgr)
+        # ellipses = self.__mean_color_filter.filter_ellipses(ellipses, bgr)
+        # ellipses = self.__debug_color_filtering(ellipses, bgr)
+        return ellipses, all_parts_
+
+    def clean_polygons(self, polygons):
         # убираем: слишком длинные и слишком короткие контуры
-        arc_len_max = self.__calibrator.reference_ellipse.measurements().arc_len * 1.2
-        arc_len_min = self.__calibrator.reference_ellipse.measurements().arc_len * 0.12
-        all_parts = [p for p in all_parts if arc_len_min < p.arc_len < arc_len_max]
+        arc_len_max = self.__calibrator.reference_ellipse.contour.measurements().arc_len * 1.2
+        arc_len_min = self.__calibrator.reference_ellipse.contour.measurements().arc_len * 0.1
+        return [p for p in polygons if p.len < 3 or arc_len_min < p.arc_len < arc_len_max]
 
-        ellipses = self.__detect_ellipses(all_parts, bgr)
+    def __debug_color_filtering(self, ellipses, frame):
+        # return ellipses
 
-        # убираем: не "фитятся" в эллипс
-        return ellipses
+        print(self.__calibrator.reference_ellipse.mean_color.round(1))
 
-    def __detect_ellipses(self, parts, bgr):
-        ellipses = self.detect_complete_ellipses(parts)
-        self.__ellipse_assembler.assemble_ellipses(parts, ellipses, bgr)
-        return ellipses
+        for (x1, y1), (x2, y2) in [((751, 501), (818, 562)), ((512, 238), (572, 292)), ((267, 532), (329, 601)),
+                                   ((1043, 276), (1128, 372)), ((1043, 485), (1148, 635))]:
+            mean = np.mean(frame[y1:y2, x1:x2], axis=(0, 1), dtype=np.float32)
+            squared_color_distance = geometry.squared_color_distance(self.__calibrator.reference_ellipse.mean_color,
+                                                                     mean)
+            print(mean.round(1), squared_color_distance.round(1), np.sqrt(squared_color_distance).round(1))
+        print('-----')
 
-    def detect_complete_ellipses(self, parts):
-        ellipses = []
-        for i, p in enumerate(parts):
-            if self.__calibrator.is_close_to_ref_ellipse(p):
-                ellipses.append(p)
-                parts.pop(i)
-        return ellipses
+        mean_color_n_distances = []
+        result = []
+        for i, el in enumerate(ellipses):
+            mean_color = ellipse_axes_mean_color(el, frame).round(1)
+            squared_dist = geometry.squared_color_distance(self.__calibrator.reference_ellipse.mean_color, mean_color)
+            if 12000 < squared_dist < 13000:
+                result.append(el)
+            mean_color_n_distances.append((mean_color, squared_dist, np.sqrt(squared_dist)))
 
-    def split(self, contour):
-        # сразу сравнивать с эталонным элипсом???
-        pts = contour.measurements().approx_points
-        angles, _ = geometry.compute_angles_vectorized(pts)
+        mean_color_n_distances.sort(key=lambda t: t[1])
+        for item in mean_color_n_distances:
+            print(item)
 
-        # (45. < angles) & (angles <= 160.)
-        # mask = angles > 160
-        mask = 45 < angles
-        indexes = np.where(mask)[0]
-        if indexes.size == 0:
-            return [Polygon(pts)]
-
-        parts = []
-
-        for i in range(len(indexes) - 1):
-            # todo: м.б. формировать список уникальных контуров в этом цикле??
-            index = indexes[i]
-            next_index = indexes[i + 1]
-            if (next_index - index) < 2:  # пропускаем фрагменты из 2 и менее точек
-                continue
-            part_pts = pts[index: next_index + 1]
-            parts.append(Polygon(part_pts))
-
-        part_pts = np.append(pts[indexes[-1]:], pts[:indexes[0] + 1], axis=0)
-        if len(part_pts) > 2:  # пропускаем фрагменты из 2 и менее точек
-            parts.append(Polygon(part_pts))
-
-        if len(parts) == 0:
-            return []
-
-        ############################
-        unique_parts = [parts[0]]
-        for i in range(1, len(parts)):
-            part = parts[i]
-            uq_part, uq_part_index = \
-                utils.first_or_default(unique_parts, lambda uniq_part: uniq_part.is_equivalent(part, 4))
-            if uq_part is None:
-                unique_parts.append(part)
-            elif part.arc_len > uq_part.arc_len:  # compare sizes and use bigger part
-                unique_parts[uq_part_index] = part
-
-        return unique_parts
+        return result
 
 
-def visualize_contours_parts(bgr, contour, parts):
+def VISUALIZE_CONTOURS_PARTS(bgr, contour, parts):
     cv2.namedWindow('debug', cv2.WINDOW_NORMAL)
 
     # im = bgr.copy()

@@ -8,16 +8,23 @@ import geometry_utils as geometry
 class Contour:
     @classmethod
     def find(cls, bgr):
-        # cv2.pyrMeanShiftFiltering(calibration_image, 4, 40, maxLevel=2)
-        bgr = cv2.GaussianBlur(bgr, (3, 3), 0, dst=bgr)
+        bgr = cls.denoise(bgr, dst=bgr)
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(gray, 0, 255, edges=gray)
-
+        # DEBUG.VIS_EDGES(edges)
         return cls.find_in_edges(edges)
+
+    @staticmethod
+    def denoise(frame, ksize=3, dst=None):
+        frame = cv2.medianBlur(frame, ksize, dst=dst)
+        frame = cv2.GaussianBlur(frame, (ksize, ksize), 0, dst=dst)
+        return frame
 
     @classmethod
     def find_in_edges(cls, edges):
-        _, contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        # _, contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        _, contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+        # DEBUG.VIS_CONTOURS(edges, contours)
         return cls.from_cv_contours(contours)
 
     @classmethod
@@ -118,9 +125,11 @@ class ContourMeasurements:
         self.fitted_ellipse = FittedEllipse.fromContour(contour)
 
         if contour.len() >= 5:
-            self.approx_points, self.tails, self.extreme_points = ContourMeasurements.__approximate(contour.points())
+            self.approx_points, self.approx_points_angles, self.tails, self.extreme_points = \
+                ContourMeasurements.__approximate(contour.points())
         else:
             self.approx_points = ContourMeasurements.empty_points()
+            self.approx_points_angles = np.empty((0,), dtype=np.float32)
             self.tails = ContourMeasurements.empty_points()  # tails - where approx contour turns on ~180deg
             self.extreme_points = ContourMeasurements.empty_points()
 
@@ -132,12 +141,13 @@ class ContourMeasurements:
     def __approximate(points):
         approx_points = cv2.approxPolyDP(points, 1, True)
         if len(approx_points) < 3:
-            return ContourMeasurements.empty_points(), ContourMeasurements.empty_points(), ContourMeasurements.empty_points()
+            return (ContourMeasurements.empty_points(), np.empty((0,), dtype=np.float32),
+                    ContourMeasurements.empty_points(), ContourMeasurements.empty_points())
         angles, approx_points_unwrapped = geometry.compute_angles_vectorized(approx_points)
         extreme_points = approx_points_unwrapped[(45. < angles) & (angles <= 160.)]
         tails = approx_points_unwrapped[angles > 160.]
 
-        return approx_points, tails, extreme_points
+        return approx_points, angles, tails, extreme_points
 
     def draw(self, im, color):
         # draw centroid
@@ -150,3 +160,41 @@ class ContourMeasurements:
 
     def __str__(self):
         return f'Area: {self.area:.2f}, ArcLen: {self.arc_len:.2f}, FittedEllipse: {self.fitted_ellipse}'
+
+
+from detection_attempts.att_1.cv_named_window import CvNamedWindow
+
+
+class DEBUG:
+    @staticmethod
+    def should_not_vis(img):
+        return img.shape[0] > 300 or img.shape[0] > 300
+
+    @staticmethod
+    def VIS_EDGES(edges):
+        if DEBUG.should_not_vis(edges):
+            return
+        wnd = CvNamedWindow('DEBUG EDGES')
+        wnd.imshow(edges)
+        cv2.waitKey()
+        wnd.destroy()
+
+    @staticmethod
+    def VIS_CONTOURS(edges, contours):
+        print(f'DEBUG.VIS_CONTOURS: contours count {len(contours)}')
+        if DEBUG.should_not_vis(edges):
+            return
+
+        im = np.zeros_like(edges)
+        cv2.drawContours(im, contours, -1, 255, 1)
+
+        images = [im]
+        for c in contours:
+            im = np.zeros_like(edges)
+            cv2.drawContours(im, [c], -1, 255, 1)
+            images.append(im)
+
+        wnd = CvNamedWindow('DEBUG CONTOURS')
+        wnd.imshow(np.hstack(images))
+        cv2.waitKey()
+        wnd.destroy()
