@@ -5,8 +5,8 @@ import cv2
 import numpy as np
 import utils
 
-from detection_attempts.video_capture import VideoCapture
-
+from video_capture import VideoCapture
+import video_sources
 
 def get_frame(frame_pos):
     video = get_video()
@@ -16,8 +16,7 @@ def get_frame(frame_pos):
 
 
 def get_video():
-    source = 'd:/DiskE/Computer_Vision_Task/Video_6.mp4'
-    return VideoCapture(source)
+    return VideoCapture(video_sources.video_6)
 
 
 def main():

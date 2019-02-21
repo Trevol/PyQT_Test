@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from detection_attempts.att_1.detect_on_video import (get_capture_and_calibration_image_video2,
                                                       get_capture_and_calibration_image_video6, Detector, Calibrator)
-from detection_attempts.att_1.cv_named_window import CvNamedWindow
+from cv_named_window import CvNamedWindow
 
 
 def get_detector(calibration_image):

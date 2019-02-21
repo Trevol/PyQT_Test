@@ -162,7 +162,7 @@ class ContourMeasurements:
         return f'Area: {self.area:.2f}, ArcLen: {self.arc_len:.2f}, FittedEllipse: {self.fitted_ellipse}'
 
 
-from detection_attempts.att_1.cv_named_window import CvNamedWindow
+from cv_named_window import CvNamedWindow
 
 
 class DEBUG:

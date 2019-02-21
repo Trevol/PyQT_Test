@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import video_sources
 
 
 class BackGroundSubtractor:
@@ -40,7 +41,7 @@ def denoise(frame):
 
 def main():
     # cam = cv2.VideoCapture(0)
-    cam = cv2.VideoCapture("d:\DiskE\Computer_Vision_Task\Video_2.mp4")
+    cam = cv2.VideoCapture(video_sources.video_2)
     ret, frame = cam.read()
     if not ret:
         return

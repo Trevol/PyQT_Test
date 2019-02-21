@@ -143,7 +143,7 @@ class EllipseAssembler:
         return pts_are_close(pt1, pt2, self.dist_thr, self.squared_dist_thr, self.dist_thr_div_sqrt2)
 
 
-from detection_attempts.att_1.cv_named_window import CvNamedWindow
+from cv_named_window import CvNamedWindow
 
 
 class DEBUG:

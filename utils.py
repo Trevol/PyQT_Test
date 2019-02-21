@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import random
 import time
+from contextlib import contextmanager
 
 
 def int_to_str(val):
@@ -17,6 +18,23 @@ def timeit(fn, iterations, *args, **kwargs):
     for i in range(iterations):
         fn(*args, **kwargs)
     return round(time.time() - t0, 3)
+
+
+def timeit_once(fn, *args, **kwargs):
+    t0 = time.time()
+    result = fn(*args, **kwargs)
+    return result, time.time() - t0
+
+
+@contextmanager
+def timeit_context(name='', round_to=3, on_exit_timed_context=None):
+    t0 = time.time()
+    yield
+    duration = round(time.time() - t0, round_to)
+    if on_exit_timed_context:
+        on_exit_timed_context(duration)
+    else:
+        print(f'duration ({name}): {duration}')
 
 
 def debounce(wait):
@@ -60,8 +78,9 @@ def first_or_default(iterable, criteria):
     return None, None
 
 
-def put_frame_pos(frame, pos):
-    cv2.putText(frame, f'Frame: {pos}', (5, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+def put_frame_pos(frame, frame_pos, xy=(5, 25)):
+    cv2.putText(frame, f'Frame: {frame_pos}', xy, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    return frame
 
 
 def imshow(flag=cv2.WINDOW_NORMAL, **name_img):

@@ -4,7 +4,7 @@ from detection_attempts.att_1.contour import Contour
 from detection_attempts.att_1.mean_color_filter import MeanColorFilter, ellipse_axes_mean_color
 from detection_attempts.att_1.ellipse_assembler import EllipseAssembler
 from detection_attempts.att_1.contour_splitter import ContourSplitter
-from detection_attempts.att_1.cv_named_window import CvNamedWindow
+from cv_named_window import CvNamedWindow
 import geometry_utils as geometry
 import numpy as np
 import utils

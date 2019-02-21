@@ -1,8 +1,13 @@
+import numpy as np
 import cv2
 import time
 
 
 class CvNamedWindow:
+    @classmethod
+    def create(cls, *windows):
+        return (cls(wnd) for wnd in windows)
+
     def __init__(self, winname=None, flags=1, mouse_callback=None):
         self.winname = winname or f'unnamed-{time.time()}'
         self.current_img = None

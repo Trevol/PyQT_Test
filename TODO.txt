@@ -1,3 +1,11 @@
+Надо пройтись по туториалам OpenCV
+- https://docs.opencv.org/4.0.1/
+- https://docs.opencv.org/4.0.1/pages.html
+- https://docs.opencv.org/4.0.1/modules.html
+- https://docs.opencv.org/4.0.1/examples.html
+- https://docs.opencv.org/4.0.1/d2/d94/bioinspired_retina.html
+  http://changedetection.net/
+
 Smooth contour:
 - http://www.morethantechnical.com/2012/12/07/resampling-smoothing-and-interest-points-of-curves-via-css-in-opencv-w-code/
 - https://www.google.com/search?q=opencv+smooth+contour&client=firefox-b-d&tbm=isch&source=iu&ictx=1&fir=ztzgm8649FAVrM%253A%252C9NXn6KNuPh6PTM%252C_&usg=AI4_-kTNeS0xbNoIb7-9957kwzekKXJVAg&sa=X&ved=2ahUKEwj_soHsw6ngAhXFDSwKHSOvBSoQ9QEwC3oECAUQBA&biw=1920&bih=954#imgdii=cILfCORXQnkIpM:&imgrc=ztzgm8649FAVrM:
@@ -9,8 +17,22 @@ Smooth contour:
 - https://agniva.me/scipy/2016/10/25/contour-smoothing.html
 - https://stackoverflow.com/questions/31464345/fitting-a-closed-curve-to-a-set-of-points/31466013#31466013
 
+Image similarity:
+- http://www.imatest.com/docs/ssim/ SSIM: Structural Similarity Index
+- google "structural similarities"
+- https://www.pyimagesearch.com/2017/06/19/image-difference-with-opencv-and-python/ Image Difference with OpenCV and Python
+- https://www.pyimagesearch.com/2014/09/15/python-compare-two-images/ How-To: Python Compare Two Images
+- https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf
+- google "pearson similarity"
+- https://stackoverflow.com/questions/1838806/euclidean-distance-vs-pearson-correlation-vs-cosine-similarity Euclidean distance vs Pearson correlation vs cosine similarity?
+
 !!
 https://www.geometrictools.com/Books/Books.html
+
+Key points tracking:
+- https://docs.opencv.org/3.0-beta/doc/tutorials/features2d/akaze_tracking/akaze_tracking.html AKAZE and ORB planar tracking
+- https://docs.opencv.org/3.0-beta/doc/tutorials/features2d/table_of_content_features2d/table_of_content_features2d.html feature2d module. 2D Features framework
+
 
 - class WorkingArea
     - update_objects(polygons)

@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
-from detection_attempts.video_capture import VideoCapture
+from video_capture import VideoCapture
 from detection_attempts.att_1.calibrator import Calibrator
 from contour_visualize import draw_contours, draw_polylines
 from detection_attempts.att_1.detector import Detector
-from detection_attempts.timeit import timeit
-from detection_attempts.att_1.cv_named_window import CvNamedWindow
+from cv_named_window import CvNamedWindow
 import utils
+import video_sources
 
 
 def visualize_calibration(calibrator, calibration_image):
@@ -54,7 +54,7 @@ def visualize_contours(contours, image, winname):
 
 
 def detect_and_draw(detector, image, print_time=True):
-    (ellipses, p), t = timeit(detector.detect, image)
+    (ellipses, p), t = utils.timeit_once(detector.detect, image)
     if print_time:
         print(round(t, 4))
     draw_ellipses(ellipses, image)
@@ -71,17 +71,14 @@ def detect_and_show(wnd, detector, image, frame_pos, wait=True):
 
 
 def get_capture_and_calibration_image_video6():
-    source = 'd:/DiskE/Computer_Vision_Task/Video_6.mp4'
-    video = VideoCapture(source)
+    video = VideoCapture(video_sources.video_6)
     calibration_image = video.read_at_pos(65)
     video.set_pos(0)
     return video, calibration_image
 
 
 def get_capture_and_calibration_image_video2():
-    # (720, 1280, 3)
-    source = 'd:/DiskE/Computer_Vision_Task/Video_2.mp4'
-    video = VideoCapture(source)
+    video = VideoCapture(video_sources.video_2)
     calibration_image = video.read_at_pos(225)
     video.set_pos(0)
     # calibration_image[480:553, 650:720]  # strong ellipse
