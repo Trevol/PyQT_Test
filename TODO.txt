@@ -1,3 +1,11 @@
+Learn background all time:
+   -
+
+- GrabCut
+- distanceTransform OpenCV\samples\python\tutorial_code\ImgTrans\distance_transformation\imageSegmentation.py
+- watershed
+- floodFill
+
 Надо пройтись по туториалам OpenCV
 - https://docs.opencv.org/4.0.1/
 - https://docs.opencv.org/4.0.1/pages.html

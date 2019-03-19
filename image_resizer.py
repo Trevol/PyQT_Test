@@ -10,7 +10,9 @@ class ImageResizer:
         src_w, src_h = src_resolution
 
         if scale is not None:
-            return round(src_w * scale), round(src_h * scale)
+            if scale == 1:
+                return None # don't need to resize
+            return int(round(src_w * scale)), int(round(src_h * scale))
 
         # if both the width and height are None, then return the
         # original image
@@ -22,13 +24,13 @@ class ImageResizer:
             # calculate the ratio of the height and construct the
             # dimensions
             scale = height / src_h
-            return round(src_w * scale), height
+            return int(round(src_w * scale)), height
 
         # otherwise, the height is None
         # calculate the ratio of the width and construct the
         # dimensions
         scale = width / src_w
-        return width, round(src_h * scale)
+        return width, int(round(src_h * scale))
 
     def resize(self, image, dst=None):
         if self.dst_resolution is None:

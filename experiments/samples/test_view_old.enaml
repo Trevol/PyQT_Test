@@ -1,0 +1,31 @@
+from enaml.widgets.api import Window, Form, Label, Field, Slider, SpinBox, PushButton
+import utils
+from atom.api import Atom, Bool, Enum, Event, Float, Int, Str, Unicode
+
+min = -3
+max = 99
+
+enamldef Main(Window): root:
+    title << "Test View {c}".format(c = root.counter)
+    attr counter = 5
+
+    Form:
+        SpinBox: spin_box:
+            minimum = min
+            maximum = max
+            value := counter
+        Slider: slider:
+            tick_interval = 2
+            minimum = min
+            maximum = max
+            value := counter
+        Field:
+            text << utils.int_to_str(root.counter)
+        Field:
+            text << u'{}'.format(counter)
+        Label:
+            text << u'{}'.format(counter)
+        PushButton:
+            text = 'Set Counter'
+            clicked ::
+                root.counter = 8

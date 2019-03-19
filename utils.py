@@ -17,7 +17,8 @@ def timeit(fn, iterations, *args, **kwargs):
     t0 = time.time()
     for i in range(iterations):
         fn(*args, **kwargs)
-    return round(time.time() - t0, 3)
+    secs = time.time() - t0
+    return round(secs, 3), round(secs / iterations, 4)
 
 
 def timeit_once(fn, *args, **kwargs):

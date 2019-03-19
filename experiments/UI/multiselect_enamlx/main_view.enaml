@@ -1,0 +1,75 @@
+from enaml.widgets.api import Window, Container, CheckBox, PushButton, Label, Container, VGroup, Separator
+from enaml.layout.api import hbox, vbox, align, spacer
+from enaml.core.api import Looper
+from enamlx.widgets.api import (TableView, TableViewRow, TableViewItem)
+
+from main_model import MainModel
+
+
+enamldef Multiselect2(TableView): table:
+    visible_rows = 100
+    horizontal_headers = ['Num']
+
+    attr model
+    items << model.items
+
+    Looper:
+        iterable << range(table.visible_rows)
+        TableViewRow:
+            row << table.visible_row+loop_index
+            attr current_item << table.items[self.row]
+
+            TableViewItem:
+                text << str(current_item)
+                checkable = True
+                checked << current_item in model.checked_items
+                toggled :: model.toggle_item(current_item, toggled = change['value'])
+
+
+enamldef Multiselect(Looper):
+    attr model
+    iterable << model.items
+    CheckBox:
+        text << str(loop_item)
+        checked << loop_item in model.checked_items
+        toggled :: model.toggle_item(loop_item, toggled = change['value'])
+
+
+enamldef Main(Window): m:
+    attr model = get_model()
+    Container:
+        padding = 5
+        constraints = [
+            vbox(
+                hbox(butt_select_3, butt_add_item, lbl, spacer),
+                0,
+                sep,
+                0,
+                hbox(c1, c2)
+            ),
+            c1.width == c2.width
+        ]
+        PushButton: butt_select_3:
+            text = 'Select 3'
+            clicked ::
+                model.checked_items.append(3)
+        PushButton: butt_add_item:
+            text = 'Add item'
+            clicked ::
+                model.items.append(99)
+        Label: lbl:
+            text << str(len(model.checked_items))
+        Separator: sep: pass
+        Container: c1:
+            padding = 0
+            Multiselect: msel_1:
+                model << m.model
+        Container: c2:
+            padding = 0
+            Multiselect2: msel_2:
+                model << m.model
+
+
+
+def get_model():
+     return MainModel(items = [1, 2, 3, 4], checked_items = [1, 2, 4])
