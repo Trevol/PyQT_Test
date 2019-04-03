@@ -51,6 +51,20 @@ Key points tracking:
     https://medium.com/datadriveninvestor/skin-segmentation-and-dominant-tone-color-extraction-fe158d24badf
     https://www.learnopencv.com/color-spaces-in-opencv-cpp-python/
 
+- skin detection
+    - google "opencv skin color detection"
+    - https://github.com/topics/skin-detection
+    - https://github.com/HasnainRaz/Skin-Segmentation-TensorFlow A modified SegNet Convolutional Neural Net for segmenting human skin from images
+
+- image segmentation
+    - https://github.com/jakeret/tf_unet  Generic U-Net Tensorflow implementation for image segmentation
+    - https://arxiv.org/abs/1511.00561    SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation
+    - http://mi.eng.cam.ac.uk/projects/segnet/ A Deep Convolutional Encoder-Decoder Architecture for Robust Semantic Pixel-Wise Labelling
+    - https://github.com/Trevol/caffe-segnet
+        - https://github.com/Trevol/caffe-segnet-cudnn5
+        - http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html
+        - https://github.com/Trevol/SegNet-Tutorial
+
 Numpy:
 - https://habr.com/ru/post/413381/   https://habr.com/ru/post/352678/
 
