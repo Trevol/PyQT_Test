@@ -8,9 +8,10 @@ import time
 
 class CvNamedWindow:
     class ROI:
-        def __init__(self, wnd):
+        def __init__(self, wnd, roiSelectedEvent):
             self.__wnd = wnd
             self.__roi = None
+            self.__roiSelectedEvent = roiSelectedEvent
 
         @staticmethod
         def __isEmpty(roi):
@@ -29,10 +30,20 @@ class CvNamedWindow:
             roi = cv2.selectROI(self.__wnd.winname, self.__wnd.current_img)
             self.__roi = None if self.__isEmpty(roi) else roi
 
+            if self.__roiSelectedEvent is not None:
+                self.__roiSelectedEvent(self.__roi, self._imageRoi(self.__roi, self.__wnd.current_img), self.__wnd, self.__wnd.current_img)
+
             self.draw()
 
             self.__wnd._reinitMouseCallback()  # restore callback
             self.__wnd.setTitleStatus(None)  # restore title
+
+        @staticmethod
+        def _imageRoi(roi, img):
+            if roi is None:
+                return None
+            x, y, w, h = roi
+            return img[y:y + h + 1, x:x + w + 1]
 
         def draw(self):
             if self.__isEmpty(self.__roi) or self.__wnd.current_img is None:
@@ -69,13 +80,13 @@ class CvNamedWindow:
         for name, flags in windowsKvArgs.items():
             yield cls(name, flags)
 
-    def __init__(self, winname=None, flags=1, mouse_callback=None):
+    def __init__(self, winname=None, flags=1, mouse_callback=None, roiSelectedEvent=None):
         defaultFlags = cv2.WINDOW_AUTOSIZE | cv2.WINDOW_KEEPRATIO | cv2.WINDOW_GUI_EXPANDED
 
         self.winname = winname or f'unnamed-{time.time()}'
         self.win_flags = flags if flags is not None else defaultFlags
         self.current_img = None
-        self.roi = self.ROI(self)
+        self.roi = self.ROI(self, roiSelectedEvent)
         self.mouse_callback = mouse_callback
         self.window_created = False
 
