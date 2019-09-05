@@ -69,7 +69,7 @@ def main():
         # a grayscale before applying the threshold.
         cv2.imshow('mask', mask)
 
-        if cv2.waitKey(10) & 0xFF == 27:
+        if cv2.waitKey(30) == 27:
             break
 
     cam.release()
